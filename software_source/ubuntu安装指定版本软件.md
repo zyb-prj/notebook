@@ -4,8 +4,8 @@
 
 ## 1.1 下载地址
 
-- 官网全版本资源下载地址：http://ftp.gnu.org/gnu/gcc/
-- 个人维护版本 gcc12：[下载地址](https://zyb-tools.oss-cn-chengdu.aliyuncs.com/ubuntu-software/gcc-12.1.0.tar.gz?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=3678178426&Signature=%2Be4aVCUxZ3Czfr%2Bzjxoif3G7KwI%3D)
+- 官网全版本资源下载地址：[官网全版本资源下载地址](http://ftp.gnu.org/gnu/gcc/)
+- 个人维护版本 gcc12：[个人维护版本gcc12下载地址](https://zyb-tools.oss-cn-chengdu.aliyuncs.com/ubuntu-software/gcc-12.1.0.tar.gz?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=3678178426&Signature=%2Be4aVCUxZ3Czfr%2Bzjxoif3G7KwI%3D)
 
 ## 1.2 下载&编译&安装
 
@@ -23,7 +23,13 @@
         tar -C ~/tools/ -zxvf gcc-12.1.0.tar.gz
         ```
 
-- 2nd 安装必须工具`sudo apt-get install bzip2`
+- 2nd 安装必须工具
+
+    ```bash
+    sudo apt-get install bzip2
+    ```
+
+    
 
 - 3rd 执行编译配置
 
@@ -58,7 +64,11 @@
 
 ## 1.3 使用
 
-- 1st 删除旧版本：`sudo apt-get remove gcc g++`
+- 1st 删除旧版本
+
+    ```bash
+    sudo apt-get remove gcc g++
+    ```
 
 - 2nd 配置新版本全局可用
 
@@ -93,7 +103,7 @@
 
 ## 2.1 下载地址
 
-官网全版本资源下载地址：https://cmake.org/download/
+官网全版本资源下载地址：[cmake官网全版本资源下载](https://cmake.org/download/)
 
 ## 2.2 安装过程
 
@@ -159,14 +169,14 @@
 
 ## 3.1 源码下载
 
-- 官网版本下载地址（全版本）：https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tgz
-- 个人维护版本（3.10）：[下载地址](https://zyb-tools.oss-cn-chengdu.aliyuncs.com/ubuntu-software/Python-3.10.0.tgz?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=3678160358&Signature=mvvAqI%2BoaxH3byjQdbrbv2ZqBWE%3D)
+- 官网版本下载地址（全版本）：[python官网版本下载](https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tgz)
+- 个人维护版本（3.10）：[python3.10个人维护版本下载](https://zyb-tools.oss-cn-chengdu.aliyuncs.com/ubuntu-software/Python-3.10.0.tgz?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=3678160358&Signature=mvvAqI%2BoaxH3byjQdbrbv2ZqBWE%3D)
 
 ## 3.2 编译源码
 
 - 1st 确认编译器及其中已经安装了 gcc 以及 make。
 
-- 2nd 解压下载后的源码至自定义目录，本文以`~/tools`为例。
+- 2nd 解压下载后的源码至自定义目录，本文以 ~/tools 为例。
 
     ```bash
     tar -C ~/tools/ -zxvf Python-3.10.0.tgz
@@ -214,7 +224,7 @@
 
 - 2nd 检验安装成功
 
-    ![检验python安装成功](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/software_source/%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6/%E6%A3%80%E9%AA%8Cpython%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692676000&Signature=kSIU8dpUErr7AAFzvMlc6oedD3U%3D)
+    ![检验python安装成功](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/software_source/ubuntu%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6/%E6%A3%80%E9%AA%8Cpython%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692695000&Signature=2889i%2FsLsBTjeXND4cjf1erTiZE%3D)
 
 ## 3.4 创建软连接指向（可选）
 
@@ -270,7 +280,7 @@
     pip
     ```
 
-    ![检验pip指向成功](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/software_source/%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6/%E6%A3%80%E9%AA%8Cpip%E6%8C%87%E5%90%91%E6%88%90%E5%8A%9F.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692676000&Signature=uHllNSWQQaMU%2FHrfq51VFyBBv4s%3D)
+    ![检验pip指向成功](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/software_source/ubuntu%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6/%E6%A3%80%E9%AA%8Cpip%E6%8C%87%E5%90%91%E6%88%90%E5%8A%9F.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692695000&Signature=BklcKlVsgPUp0QuesdO6TXg6i%2BM%3D)
 
 # 4 安装指定版本 vim
 
@@ -311,6 +321,3 @@
         ```bash
         sudo make install
         ```
-
-
-## 
