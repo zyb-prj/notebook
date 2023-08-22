@@ -9,9 +9,7 @@
 
 
 # 2 安装软件
-
 若您使用 ubuntu18.04，则要安装相对较新的 gcc、cmake、python 以及 vim 再做下文配置。详情参考[安装指定版本软件](https://github.com/zyb-prj/notebook/blob/main/software_source/ubuntu%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6.md)。
-
 若您使用 ubuntu22.04，则完全不需要折腾，直接往下开整即可。
 
 # 3 配置 vim
