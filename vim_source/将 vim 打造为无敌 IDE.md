@@ -10,7 +10,9 @@
 
 # 2 安装软件
 
-**若开发条件不满足（详情见[4.2.1 确认开发环境](#4.2.1 确认开发环境)）时一定要先安装 python，再编译 vim 源码后安装 vim。**
+**若您使用 ubuntu18.04，则要安装相对较新的 gcc cmake 以及 python，编译最新版本 vim 再安装。**详情参考[安装指定版本软件](https://github.com/zyb-prj/notebook/blob/main/software_source/%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6.md)。
+
+**若您使用 ubuntu22.04，则完全不需要折腾，直接往下开整即可。**
 
 # 3 配置 vim
 
