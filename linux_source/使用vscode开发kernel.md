@@ -94,13 +94,17 @@ vscode 安装 clang 插件后，它的使用还需要一个运行在 Linux 服�
 
     ![vscode通过ssh连接最后一步操作界面流程](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-3_vscode%E6%8C%89%E8%A6%81%E6%B1%82%E9%85%8D%E7%BD%AEssh%E8%BF%9E%E6%8E%A5%E6%8C%87%E4%BB%A4%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=sWivdcm27tRdpGseNpy4R4QHe6g%3D)
 
-- 6th 连接之后一定要确保客户端和服务端的 vscode 安装同样的插件**（极其重要）**，连接至服务端之后可以在客户端插件处操作安装至服务端，如下图 2-5 所示：
+
+- 6th 连接之后一定要确保客户端和服务端的 vscode 安装同样的插件（极其重要），连接至服务端之后可以在客户端插件处操作安装至服务端，如下图 2-5 所示：
+
 
     ![vscode服务端插件安装操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-5_vscode%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=pNIXyJyxLRJJ1YtjE2%2F6nk8jJ3w%3D)
 
 ## 2.3 服务端配置
 
-- 1st 确保 clang13.0 插件完成安装（[clang13.0安装方式](#1.3.2 下载并安装（一定要在服务端安装）)），并获取其安装路径（此处为 ～/tools/clangd_13.0.0/bin）。
+
+- 1st 确保 clang13.0 插件完成安装（[clang13.0安装方式](https://github.com/zyb-prj/notebook/blob/main/linux_source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel.md#13-%E5%AE%89%E8%A3%85-clangd)），并获取其安装路径（此处为 ～/tools/clangd_13.0.0/bin）。
+
 
 - 2nd 修改服务端设置文件，客户端 vscode 连接到服务端之后打开 vscode 服务器配置文件 settings.json 做适当调整。操作流程如下图 2-6 所示。
 
