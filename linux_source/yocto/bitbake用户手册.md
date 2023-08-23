@@ -407,9 +407,9 @@ image_task[mcdepends] = "mc:target1:target2:image2:image_task"
 bitbake target
 ```
 
-有关 BitBake 命令及其选项的信息，请参阅 "[BitBake 命令](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#151-%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95%E5%92%8C%E8%AF%AD%E6%B3%95) "部分。
+有关 BitBake 命令及其选项的信息，请参阅 "[BitBake 命令](#1.5 BitBake 命令) "部分。
 
-**备注**：执行 BitBake 之前，应在项目的 local.conf 配置文件中设置 BB_NUMBER_THREADS 变量，以利用构建主机上可用的并行线程执行功能。确定编译主机的这一值的常用方法是运行以下程序：`grep processor /proc/cpuinfo`。该命令将返回处理器数量，并将超线程计算在内。因此，带有超线程功能的四核构建主机最有可能显示八个处理器，这就是你要分配给 [BB_NUMBER_THREADS](https://docs.yoctoproject.org/bitbake/bitbake-user-manual/bitbake-user-manual-ref-variables.html#term-BB_NUMBER_THREADS) 的值。一个可能更简单的解决方案是，某些 Linux 发行版（如 Debian 和 Ubuntu）提供了 ncpus 命令。
+**备注**：执行 BitBake 之前，应在项目的 local.conf 配置文件中设置 BB_NUMBER_THREADS 变量，以利用构建主机上可用的并行线程执行功能。确定编译主机的这一值的常用方法是运行以下程序：`grep processor /proc/cpuinfo`。该命令将返回处理器数量，并将超线程计算在内。因此，带有超线程功能的四核构建主机最有可能显示八个处理器，这就是你要分配给 [BB_NUMBER_THREADS](#BB_NUMBER_THREADS) 的值。一个可能更简单的解决方案是，某些 Linux 发行版（如 Debian 和 Ubuntu）提供了 ncpus 命令。
 
 ## 2.1 解析基本配置元数据
 
@@ -429,9 +429,9 @@ layer.conf 文件用于构建 [BBPATH](#BBPATH) 和 [BBFILES](#BBFILES) 等关�
 
 - [BB_ENV_PASSTHROUGH](#BB_ENV_PASSTHROUGH)
 - [BB_ENV_PASSTHROUGH_ADDITIONS](#BB_ENV_PASSTHROUGH_ADDITIONS)
-- [BB_PRESERVE_ENV](https://docs.yoctoproject.org/bitbake/bitbake-user-manual/bitbake-user-manual-ref-variables.html#term-BB_PRESERVE_ENV)
+- [BB_PRESERVE_ENV](#BB_PRESERVE_ENV)
 - [BB_ORIGENV](#BB_ORIGENV)
-- [BITBAKE_UI]()
+- [BITBAKE_UI](#BITBAKE_UI)
 
 
 
@@ -445,6 +445,44 @@ BitBake 首先会在当前工作目录中搜索一个可选的 conf/bblayers.con
 
 然后，BitBake 会在用户指定的 BBPATH 中找到 conf/bitbake.conf 文件。该配置文件通常包含 include 指令，用于调入任何其他元数据，如架构、机器、本地环境等特定文件。
 
+BitBake .conf 文件中只允许使用变量定义和包含指令。有些变量会直接影响 BitBake 的行为。这些变量可能是根据前面提到的环境变量从环境中设置的，也可能是在配置文件中设置的。[变量词汇表](#5 变量词汇表)一章列出了所有变量。
+
+在解析配置文件后，BitBake 会使用其最基本的继承机制（通过类文件）来继承一些标准类。当遇到负责获取类的继承指令时，BitBake 就会解析该类。
+
+base.bbclass 文件始终包含在内。配置中使用 [INHERIT](#INHERIT) 变量指定的其他类也会包含在内。BitBake 在 [BBPATH](#BBPATH) 路径下的 classes 子目录中搜索类文件的方式与配置文件相同。
+
+运行以下 BitBake 命令是了解执行环境中使用的配置文件和类文件的好方法：
+
+```bash
+bitbake -e > mybb.log
+```
+
+检查 mybb.log 的顶部，可以看到执行环境中使用的许多配置文件和类文件。
+
+**备注**：您需要了解 BitBake 如何解析大括号。如果配方在函数中使用了结尾大括号，而该字符没有前导空格，BitBake 会产生解析错误。如果在 shell 函数中使用了一对大括号，则结尾大括号不得位于没有前导空格的行首。下面是一个导致 BitBake 产生解析错误的示例：
+
+```shell
+fakeroot create_shar() {
+   cat << "EOF" > ${SDK_DEPLOY}/${TOOLCHAIN_OUTPUTNAME}.sh
+usage()
+{
+   echo "test"
+   ######  The following "}" at the start of the line causes a parsing error ######
+}
+EOF
+}
+
+Writing the recipe this way avoids the error:
+fakeroot create_shar() {
+   cat << "EOF" > ${SDK_DEPLOY}/${TOOLCHAIN_OUTPUTNAME}.sh
+usage()
+{
+   echo "test"
+   ###### The following "}" with a leading space at the start of the line avoids the error ######
+ }
+EOF
+}
+```
 
 
 
@@ -452,16 +490,33 @@ BitBake 首先会在当前工作目录中搜索一个可选的 conf/bblayers.con
 
 
 
+# 3 语法和运算符
+
+## 3.4 共享功能
+
+### 3.4.5 INHERIT 配置指令
+
+创建配置文件（.conf）时，可以使用 [INHERIT](#INHERIT) 配置指令来继承一个类。BitBake 仅支持在配置文件中使用该指令。
+
+举个例子，假设需要从配置文件中继承一个名为 abc.bbclass 的类文件，如下所示：
+
+```bash
+INHERIT += "abc"
+```
+
+在解析过程中，该配置指令会导致指定的类被继承。与继承指令一样，.bbclass 文件必须位于 [BBPATH](#BBPATH) 指定目录中的 "classes "子目录下。
+
+**备注**：由于 .conf 文件在 BitBake 执行过程中首先被解析，因此使用 [INHERIT](#INHERIT) 继承一个类实际上是全局继承该类（即继承所有配方）。
+
+如果要使用该指令继承多个类，可以在 local.conf 文件的同一行中提供。使用空格分隔类。下面的示例展示了如何同时继承 autotools 和 pkgconfig 两个类：
+
+```bash
+INHERIT += "autotools pkgconfig"
+```
 
 
 
-
-
-
-
-# 3
-
-## 3.6
+## 3.6 任务
 
 ### 3.6.3 向构建任务环境传递信息
 
@@ -541,3 +596,13 @@ bitbake target
 用于指定运行 BitBake 时要使用的用户界面模块。使用此变量等同于使用 -u 命令行选项。
 
 **备注**：您必须在外部环境中设置该变量，以使其发挥作用。
+
+## BB_NUMBER_THREADS
+
+BitBake 在同一时间应并行运行的最大任务数。如果您的主机开发系统支持多内核，一个好的经验法则是将此变量设置为内核数的两倍。
+
+## INHERIT
+
+将全局继承指定的一个或多个类。类中的匿名函数不会在基本配置和每个配方中执行。OpenEmbedded 构建系统会忽略个别配方中对 [INHERIT](#INHERIT) 的更改。
+
+有关 [INHERIT](#INHERIT) 的更多信息，请参阅 [INHERIT 配置指令](#3.4.5 INHERIT 配置指令)部分。
