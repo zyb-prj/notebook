@@ -38,16 +38,17 @@
 
 - markdown类：`Markdown All in One`    `Markdown Preview Enhanced`
 
+### 1.2.2 插件确认
 
-### 1.2.2 插件展示
+如下图 1-1 所示。
 
-![vscode开发kernel所需插件](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/1-%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/1.2-vscode%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85/1.2.2-%E6%8F%92%E4%BB%B6%E5%B1%95%E7%A4%BA/vscode%E5%BC%80%E5%8F%91kernel%E6%89%80%E9%9C%80%E6%8F%92%E4%BB%B6.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692699000&Signature=5LddGNnNB5ad%2B3ru01AKZONBbNE%3D)
+![vscode开发kernel所需插件](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/1-1_vscode%E5%BC%80%E5%8F%91kernel%E6%89%80%E9%9C%80%E6%8F%92%E4%BB%B6.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=FGlVUvnSHMEGiaG4NE15evJdpBA%3D)
 
 ## 1.3 安装 clangd
 
 vscode 安装 clang 插件后，它的使用还需要一个运行在 Linux 服务器上的 clangd 程序。我们以后使用 vscode 打开 C 文件时，会提示你安装 clangd 程序，它会安装最新版本(版本15)，但是这个版本有一些 Bug，所以我们手工安装版本13。
 
-#### 1.3.1 下载源
+### 1.3.1 下载源
 
 - 官方下载地址：[Clang13.0官方版本下载](https://github.com/clangd/clangd/releases/tag/13.0.0)
 - 个人维护版本：[Clang13.0个人维护版本下载](https://zyb-tools.oss-cn-chengdu.aliyuncs.com/ubuntu-software/clangd-linux-13.0.0.zip?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=3677989892&Signature=ERMepUJIgij9Yc%2BLKfUzH5xHbxs%3D)
@@ -73,62 +74,48 @@ vscode 安装 clang 插件后，它的使用还需要一个运行在 Linux 服�
 
 - linux 内核开发建议使用 ubuntu 操作系统来做开发，下面我们称其为服务端。同时 windows 或 mac 操作系统更具有可操作性，下面称其为客户端，因此我们可以在 win 或 mac 下使用 vscode 远程连接服务器来做开发。
 
-
-## 2.2 服务端配置
-
-直接看后续模块，远端连接后配置更便捷。
-
-## 2.3 客户端使用 vscode 连接至服务端
+## 2.2 ssh 连接
 
 - 1st 获取服务端 IP，假设为 xx.xx.xx.x。
 
-- 2nd 打开服务端 vscode，点击左下角的远程连接按钮，操作流程如下图所示。
+- 2nd 打开服务端 vscode，点击左下角的远程连接按钮，操作流程如下图 2-1 所示。
 
-    ![vscode通过左下角远程连接按钮操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-%E4%BD%BF%E7%94%A8vscode%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/2.3-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8vscode%E8%BF%9E%E6%8E%A5%E8%87%B3%E6%9C%8D%E5%8A%A1%E7%AB%AF/vscode%E9%80%9A%E8%BF%87%E5%B7%A6%E4%B8%8B%E8%A7%92%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5%E6%8C%89%E9%92%AE%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692699000&Signature=DsdM8XC65VY9kspi8HAUIyKT8ms%3D)
+    ![vscode通过左下角远程连接按钮操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-1_vscode%E9%80%9A%E8%BF%87%E5%B7%A6%E4%B8%8B%E8%A7%92%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5%E6%8C%89%E9%92%AE%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=KiwGcKFGxZ8Hy9a1sHE6rAYx%2B6k%3D)
 
-- 3rd 新增连接，操作流程如下图所示。
+- 3rd 新增连接，操作流程如下图 2-2 所示。
 
-    ![vscode通过左下角远程连接按钮操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-%E4%BD%BF%E7%94%A8vscode%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/2.3-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8vscode%E8%BF%9E%E6%8E%A5%E8%87%B3%E6%9C%8D%E5%8A%A1%E7%AB%AF/vscode%E6%96%B0%E5%A2%9E%E8%BF%9E%E6%8E%A5%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692699000&Signature=37YyCMSRXqnet6AxAjsoJC7V3Uk%3D)
+    ![vscode新增连接操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-2_vscode%E6%96%B0%E5%A2%9E%E8%BF%9E%E6%8E%A5%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=fl%2B0qDosmt91y26%2BEJDRkrQTmTM%3D)
 
-- 4th 按要求配置远程连接指令：`ssh user@xx.xxx.xxx.x -A`，输入完成后按回车确定。
+- 4th 按要求配置远程连接指令：`ssh user@xx.xxx.xxx.x -A`，输入完成后按回车确定。操作流程如下图 2-3 所示。
 
-    ![vscode按要求配置ssh连接指令操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-%E4%BD%BF%E7%94%A8vscode%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/2.3-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8vscode%E8%BF%9E%E6%8E%A5%E8%87%B3%E6%9C%8D%E5%8A%A1%E7%AB%AF/vscode%E6%8C%89%E8%A6%81%E6%B1%82%E9%85%8D%E7%BD%AEssh%E8%BF%9E%E6%8E%A5%E6%8C%87%E4%BB%A4%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692699000&Signature=%2FNj4WE%2Fu45Z1Nhm9g9wddrryRyc%3D)
+    ![vscode按要求配置ssh连接指令操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-3_vscode%E6%8C%89%E8%A6%81%E6%B1%82%E9%85%8D%E7%BD%AEssh%E8%BF%9E%E6%8E%A5%E6%8C%87%E4%BB%A4%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=sWivdcm27tRdpGseNpy4R4QHe6g%3D)
 
-- 5th 重新按照 1st & 2nd & 3rd 的方式走到 3rd 所示途中的位置会出现添加的配置，如下图所示：
+- 5th 重新按照 1st & 2nd & 3rd 的方式走到 3rd 所示途中的位置会出现添加的配置，如下图 2-4 所示：
 
-    ![vscode通过ssh连接最后一步操作界面流程](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-%E4%BD%BF%E7%94%A8vscode%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/2.3-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8vscode%E8%BF%9E%E6%8E%A5%E8%87%B3%E6%9C%8D%E5%8A%A1%E7%AB%AF/vscode%E9%80%9A%E8%BF%87ssh%E8%BF%9E%E6%8E%A5%E6%9C%80%E5%90%8E%E4%B8%80%E6%AD%A5%E6%93%8D%E4%BD%9C%E7%95%8C%E9%9D%A2%E6%B5%81%E7%A8%8B.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692700000&Signature=ozZZIc7V%2BSnL8WyJpaFikSDulr0%3D)
+    ![vscode通过ssh连接最后一步操作界面流程](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-3_vscode%E6%8C%89%E8%A6%81%E6%B1%82%E9%85%8D%E7%BD%AEssh%E8%BF%9E%E6%8E%A5%E6%8C%87%E4%BB%A4%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=sWivdcm27tRdpGseNpy4R4QHe6g%3D)
 
-- 6th 连接之后一定要确保客户端和服务端的 vscode 安装同样的插件**（极其重要）**，连接至服务端之后可以在客户端插件处操作安装至服务端，如下图所示：
+- 6th 连接之后一定要确保客户端和服务端的 vscode 安装同样的插件（极其重要），连接至服务端之后可以在客户端插件处操作安装至服务端，如下图 2-5 所示：
 
-    ![vscode服务端插件安装操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-%E4%BD%BF%E7%94%A8vscode%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/2.3-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8vscode%E8%BF%9E%E6%8E%A5%E8%87%B3%E6%9C%8D%E5%8A%A1%E7%AB%AF/vscode%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692700000&Signature=gfbRJmz15QsaAj8Xrmpad1CP4jw%3D)
+    ![vscode服务端插件安装操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-5_vscode%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=pNIXyJyxLRJJ1YtjE2%2F6nk8jJ3w%3D)
 
 ## 2.3 服务端配置
 
-### 2.3.1 获取 clangd 服务端可执行文件路径
+- 1st 确保 clang13.0 插件完成安装（[clang13.0安装方式](https://github.com/zyb-prj/notebook/blob/main/linux_source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel.md#13-%E5%AE%89%E8%A3%85-clangd)），并获取其安装路径（此处为 ～/tools/clangd_13.0.0/bin）。
 
-路径获取参考[2.1.3.2 安装（一定要在服务端安装）](#2.1.3.2 安装（一定要在服务端安装）)
+- 2nd 修改服务端设置文件，客户端 vscode 连接到服务端之后打开 vscode 服务器配置文件 settings.json 做适当调整。操作流程如下图 2-6 所示。
 
-假设获取到的路径为： /.../clangd_13.0.0/bin
+    ![2-6_修改settings.json操作流程界面](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/%E4%BD%BF%E7%94%A8vscode%E5%BC%80%E5%8F%91kernel/2-6_%E4%BF%AE%E6%94%B9settings.json%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B%E7%95%8C%E9%9D%A2.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692758000&Signature=vepNBvD3wwZF5EY6j%2FvgtPTAKgw%3D)
 
-### 2.3.2 修改服务端设置文件
+- #### 3rd settings.json 基本设置内容
 
-#### 2.3.2.1 打开设置文件
+    ```json
+    {
+    	"C_Cpp.default.intelliSenseMode": "linux-gcc-arm",
+    	"C_Cpp.intelliSenseEngine": "Disabled",
+    	"clangd.path": " /.../clangd_13.0.0/bin/clangd",
+    	"clangd.arguments": [
+    		"--log=verbose",
+    	],
+    }
+    ```
 
-客户端 vscode 连接到服务端之后打开 vscode 服务器配置文件 settings.json 做适当调整
-
-![image-20230305214631617](https://zyb-pic.oss-cn-chengdu.aliyuncs.com/pic/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/02-vscode%E5%BC%80%E5%8F%91linux%E5%86%85%E6%A0%B8/2-2.3-2.3.2-2.3.2.1-vscode%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6settings.json%E6%B5%81%E7%A8%8B%E7%A4%BA%E6%84%8F%E5%9B%BE.png)
-
-#### 2.3.2.2 设置内容
-
-```bash
-{
-	"C_Cpp.default.intelliSenseMode": "linux-gcc-arm",
-	"C_Cpp.intelliSenseEngine": "Disabled",
-	"clangd.path": " /.../clangd_13.0.0/bin/clangd",
-	"clangd.arguments": [
-		"--log=verbose",
-	],
-}
-```
-
-## 
