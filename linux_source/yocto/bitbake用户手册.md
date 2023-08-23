@@ -311,7 +311,7 @@ BitBake 可以使用点语法生成依赖关系图。您可以使用 [Graphviz](
 
 - pn-buildlist：显示待构建目标的简单列表。
 
-要停止依赖常见的依赖项，使用 -I depend 选项，BitBake 就会从图表中省略它们。省略这些信息可以生成更易读的图形。这样，你就可以从图形中删除继承类（如 base.bbclass）的 [DEPENDS](https://docs.yoctoproject.org/bitbake/bitbake-user-manual/bitbake-user-manual-ref-variables.html#term-DEPENDS)。
+要停止依赖常见的依赖项，使用 -I depend 选项，BitBake 就会从图表中省略它们。省略这些信息可以生成更易读的图形。这样，你就可以从图形中删除继承类（如 base.bbclass）的 [DEPENDS](#DEPENDS)。
 
 下面是创建依赖关系图的示例：
 
@@ -553,6 +553,20 @@ bar = origenv.getVar("BAR", False)
 
 # 5 变量词汇表
 
+## DEPENDS
+
+列出配方的构建时依赖项（即其他配方文件）。
+
+请看这个简单的例子，两个配方分别名为 "a" 和 "b"，它们生成的软件包名称相似。在本例中，DEPENDS 语句出现在 "a" 配方中：
+
+```bash
+DEPENDS = "b"
+```
+
+这里的依赖关系是，配方 "a"的 do_configure 任务依赖于配方 "b" 的 do_populate_sysroot 任务。这意味着配方 "b" 放入 sysroot 的任何内容在配方 "a" 配置自己时都是可用的。
+
+有关运行时依赖关系的信息，请参阅 [RDEPENDS](#RDEPENDS) 变量。
+
 ## BBPATH
 
 BitBake 用来查找类（.bbclass）和配置（.conf）文件。该变量类似于 PATH 变量。
@@ -606,3 +620,39 @@ BitBake 在同一时间应并行运行的最大任务数。如果您的主机开
 将全局继承指定的一个或多个类。类中的匿名函数不会在基本配置和每个配方中执行。OpenEmbedded 构建系统会忽略个别配方中对 [INHERIT](#INHERIT) 的更改。
 
 有关 [INHERIT](#INHERIT) 的更多信息，请参阅 [INHERIT 配置指令](#3.4.5 INHERIT 配置指令)部分。
+
+## RDEPENDS
+
+列出软件包的运行时依赖包（即其他软件包），必须安装这些依赖包才能使构建的软件包正常运行。如果在构建过程中找不到此列表中的软件包，就会出现构建错误。
+
+由于 [RDEPENDS](#RDEPENDS) 变量适用于正在编译的软件包，因此应始终以附带软件包名称的形式使用该变量。例如，假设你正在构建一个依赖于 perl 软件包的开发软件包。在这种情况下，你将使用下面的 [RDEPENDS](#RDEPENDS) 语句：
+
+```bash
+RDEPENDS:${PN}-dev += "perl"
+```
+
+在本例中，开发包依赖于 perl 包。因此， [RDEPENDS](#RDEPENDS) 变量中包含 ${PN}-dev 软件包名称。
+
+BitBake 支持指定版本化的依赖关系。虽然语法因打包格式而异，但 BitBake 隐藏了这些差异。以下是使用 [RDEPENDS](#RDEPENDS) 变量指定版本的一般语法：
+
+```bash
+RDEPENDS:${PN} = "package (operator version)"
+```
+
+对于操作员，您可以指定以下内容：
+
+```bash
+=
+<
+>
+<=
+>=
+```
+
+例如，下面的代码将依赖版本为 1.2 或更高的软件包 foo：
+
+```bash
+RDEPENDS:${PN} = "foo (>= 1.2)"
+```
+
+有关联编时依赖关系的信息，请参阅 [DEPENDS](#DEPENDS) 变量。
