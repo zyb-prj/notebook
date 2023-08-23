@@ -4,8 +4,6 @@
 
 从根本上说，BitBake 是一个通用任务执行引擎，它允许 shell 和 Python 任务高效并行运行，同时在复杂的任务间依赖性约束下工作。BitBake 的主要用户之一 OpenEmbedded 利用这一核心，采用面向任务的方法构建嵌入式 Linux 软件栈。
 
-
-
 从概念上讲，BitBake 在某些方面与 GNU Make 相似，但也有显著区别：
 
 - BitBake 会根据所提供的元数据执行任务，这些元数据会构建任务。元数据存储在配方（.bb）和相关配方 "附加"（.bbappend）文件、配置（.conf）和底层包含（.inc）文件以及类（.bbclass）文件中。元数据为 BitBake 提供了运行哪些任务的指令，以及这些任务之间的依赖关系。
@@ -69,8 +67,6 @@ BitBake 最初的一些重要目标是：
 - 允许将给定的任务输入变量集表示为校验和。根据校验和，允许使用预构建组件加速构建。
 
 BitBake 不仅满足了所有原始要求，还对基本功能进行了扩展，以满足更多要求。灵活性和强大功能一直是优先考虑的因素。BitBake 具有高度可扩展性，支持嵌入 Python 代码和执行任意任务。
-
-
 
 ## 1.3 概念
 
@@ -377,6 +373,8 @@ image_task[mcdepends] = "mc:target1:target2:image2:rootfs_task"
 
 在本例中，from_multiconfig 为 "target1"，to_multiconfig 为 "target2"。包含 image_task 的映像任务取决于用于生成映像 2 的 rootfs_task 的完成情况，而映像 2 与 "target2 "multiconfig 相关联。
 
+
+
 一旦设置了该依赖关系，就可以使用 BitBake 命令构建 "target1 "多参数配置，如下所示：
 
 ```bash
@@ -384,6 +382,8 @@ bitbake mc:target1:image1
 ```
 
 该命令将执行为 "target1 "multiconfig 创建 image1 所需的所有任务。由于存在依赖关系，BitBake 也会通过 rootfs_task 执行 "target2 "multiconfig 的构建任务。
+
+
 
 让一个配方依赖于另一个构建的根文件系统似乎并不那么有用。请考虑对 image1 配方中的语句作如下修改：
 
@@ -393,4 +393,151 @@ image_task[mcdepends] = "mc:target1:target2:image2:image_task"
 
 在这种情况下，BitBake 必须为 "target2 "编译创建 image2，因为 "target1 "编译依赖于它。
 
+
+
 由于 "target1 "和 "target2 "已启用多重配置联编，并拥有独立的配置文件，因此 BitBake 会将每个联编的工件放在各自的临时联编目录中。
+
+# 2 执行
+
+运行 BitBake 的主要目的是产生某种输出，如单个可安装包、内核、软件开发工具包，甚至是完整的、特定于板卡的可引导 Linux 映像，包括引导加载器、内核和根文件系统。当然，你也可以在执行 bitbake 命令时加入一些选项，让它执行单个任务、编译单个配方文件、捕获或清除数据，或者只是返回有关执行环境的信息。
+
+本章将介绍使用 BitBake 创建映像时从头到尾的执行过程。执行过程使用以下命令形式启动：
+
+```bash
+bitbake target
+```
+
+有关 BitBake 命令及其选项的信息，请参阅 "[BitBake 命令](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#151-%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95%E5%92%8C%E8%AF%AD%E6%B3%95) "部分。
+
+**备注**：执行 BitBake 之前，应在项目的 local.conf 配置文件中设置 BB_NUMBER_THREADS 变量，以利用构建主机上可用的并行线程执行功能。确定编译主机的这一值的常用方法是运行以下程序：`grep processor /proc/cpuinfo`。该命令将返回处理器数量，并将超线程计算在内。因此，带有超线程功能的四核构建主机最有可能显示八个处理器，这就是你要分配给 [BB_NUMBER_THREADS](https://docs.yoctoproject.org/bitbake/bitbake-user-manual/bitbake-user-manual-ref-variables.html#term-BB_NUMBER_THREADS) 的值。一个可能更简单的解决方案是，某些 Linux 发行版（如 Debian 和 Ubuntu）提供了 ncpus 命令。
+
+## 2.1 解析基本配置元数据
+
+BitBake 要做的第一件事就是解析基础配置元数据。基础配置元数据由项目的 bblayers.conf 文件（用于确定 BitBake 需要识别哪些层）、所有必要的 layer.conf 文件（每层一个）和 bitbake.conf 组成。数据本身有多种类型：
+
+- **Recipes**：有关特定软件的详细信息。
+
+- **Class Data**：常见构建信息的抽象（如如何构建 Linux 内核）。
+
+- **Configuration Data**：机器特定的设置、策略决定等。配置数据就像粘合剂，将所有东西粘合在一起。
+
+layer.conf 文件用于构建 [BBPATH](#BBPATH) 和 [BBFILES](#BBFILES) 等关键变量。[BBPATH](#BBPATH) 分别用于搜索 conf 和 classes 目录下的配置文件和类文件。[BBFILES](#BBFILES) 用于查找配方和配方附加文件（.bb 和 .bbappend）。如果没有 bblayers.conf 文件，则假定用户已在环境中直接设置了 [BBPATH](#BBPATH) 和 [BBFILES](#BBFILES) 。
+
+然后，使用刚才构建的 [BBPATH](#BBPATH) 变量定位 bitbake.conf 文件。bitbake.conf 文件还可以使用 include 或 require 指令包含其他配置文件。
+
+在解析配置文件之前，BitBake 会查看某些变量，包括：
+
+- [BB_ENV_PASSTHROUGH](#BB_ENV_PASSTHROUGH)
+- [BB_ENV_PASSTHROUGH_ADDITIONS](#BB_ENV_PASSTHROUGH_ADDITIONS)
+- [BB_PRESERVE_ENV](https://docs.yoctoproject.org/bitbake/bitbake-user-manual/bitbake-user-manual-ref-variables.html#term-BB_PRESERVE_ENV)
+- [BB_ORIGENV](#BB_ORIGENV)
+- [BITBAKE_UI]()
+
+
+
+该列表中的前四个变量与 BitBake 在任务执行过程中如何处理 shell 环境变量有关。默认情况下，BitBake 会清除环境变量，并对 shell 执行环境进行严格控制。不过，通过使用前四个变量，您可以对 BitBake 在执行任务时允许在 shell 中使用的环境变量进行控制。有关这些变量的工作原理和使用方法，请参阅 "[向构建任务环境传递信息](#3.6.3 向构建任务环境传递信息)"部分，以及变量词汇表中有关这些变量的信息。
+
+基础配置元数据是全局性的，因此会影响所有配方和执行的任务。
+
+BitBake 首先会在当前工作目录中搜索一个可选的 conf/bblayers.conf 配置文件。预计该文件将包含一个 BBLAYERS 变量，它是一个以空格分隔的 "层 "目录列表。回想一下，如果 BitBake 找不到 bblayers.conf 文件，就会认为用户已经在环境中直接设置了 [BBPATH](#BBPATH) 和 [BBFILES](#BBFILES) 变量。
+
+对于列表中的每个目录（层），都会找到并解析一个 conf/layer.conf 文件，并将 LAYERDIR 变量设置为找到该层的目录。这样做的目的是让这些文件自动为指定的编译目录正确设置  [BBPATH](#BBPATH) 和其他变量。
+
+然后，BitBake 会在用户指定的 BBPATH 中找到 conf/bitbake.conf 文件。该配置文件通常包含 include 指令，用于调入任何其他元数据，如架构、机器、本地环境等特定文件。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 3
+
+## 3.6
+
+### 3.6.3 向构建任务环境传递信息
+
+在运行任务时，BitBake 会严格控制构建任务的 shell 执行环境，以确保来自构建机器的不必要污染不会影响构建。
+
+**备注**：默认情况下，BitBake 会对环境进行清理，只包含导出或列在直通列表中的内容，以确保编译环境的可重复性和一致性。您可以通过设置 [BB_PRESERVE_ENV](#BB_PRESERVE_ENV) 变量来阻止这种 "清理"。
+
+因此，如果您确实希望将某些内容传递到构建任务环境中，就必须采取这两个步骤：
+
+1. 告诉 BitBake 从环境中加载您想要的内容到数据存储中。这可以通过 [BB_ENV_PASSTHROUGH](#BB_ENV_PASSTHROUGH) 和 [BB_ENV_PASSTHROUGH_ADDITIONS](#BB_ENV_PASSTHROUGH_ADDITIONS) 变量来实现。例如，假设你想阻止编译系统访问 $HOME/.ccache 目录。下面的命令将环境变量 CCACHE_DIR 添加到 BitBake 的直通列表中，以允许该变量进入数据存储：
+
+    ```bash
+    export BB_ENV_PASSTHROUGH_ADDITIONS="$BB_ENV_PASSTHROUGH_ADDITIONS CCACHE_DIR"
+    ```
+
+2. 告诉 BitBake 将加载到数据存储中的内容导出到每个运行任务的任务环境中。将环境中的内容加载到数据存储中（上一步）只能使其在数据存储中可用。要将其导出到每个运行任务的任务环境中，请在本地配置文件 local.conf 或发行版配置文件中使用类似下面的命令：
+
+    ```bash
+    export CCACHE_DIR
+    ```
+
+    **备注**：前面步骤的一个副作用是，BitBake 会将变量作为编译过程的依赖项记录到 setscene 校验和等文件中。如果这样做会导致不必要的任务重建，也可以标记变量，这样 setscene 代码在创建校验和时就会忽略该依赖关系。
+
+有时，从原始执行环境中获取信息是非常有用的。BitBake 会将原始环境的副本保存到一个名为 [BB_ORIGENV](#BB_ORIGENV) 的特殊变量中。
+
+[BB_ORIGENV](#BB_ORIGENV) 变量返回一个数据存储对象，可以使用标准数据存储操作符（如 getVar(,False)）进行查询。例如，数据存储对象在查找原始 DISPLAY 变量时非常有用。下面是一个示例：
+
+```bash
+origenv = d.getVar("BB_ORIGENV", False)
+bar = origenv.getVar("BAR", False)
+```
+
+上例从原始执行环境返回 BAR。
+
+# 5 变量词汇表
+
+## BBPATH
+
+BitBake 用来查找类（.bbclass）和配置（.conf）文件。该变量类似于 PATH 变量。
+
+如果从联编目录之外的目录运行 BitBake，必须确保将 BBPATH 设为指向联编目录。像设置其他环境变量一样设置该变量，然后运行 BitBake：
+
+```bash
+BBPATH="build_directory"
+export BBPATH
+bitbake target
+```
+
+## BBFILES
+
+以空格分隔的 BitBake 用来构建软件的配方文件列表。
+
+指定配方文件时，可以使用 Python 的 glob 语法进行模式匹配。有关语法的详细信息，请点击前面的链接查看文档。
+
+## BB_ENV_PASSTHROUGH
+
+指定允许从外部环境进入 BitBake 数据存储的内部变量列表。如果未指定该变量的值（默认值），则使用以下列表：[BBPATH](#BBPATH)、[BB_PRESERVE_ENV](#BB_PRESERVE_ENV)、[BB_ENV_PASSTHROUGH](#BB_ENV_PASSTHROUGH) 和 [BB_ENV_PASSTHROUGH_ADDITIONS](#BB_ENV_PASSTHROUGH_ADDITIONS)。
+
+## BB_ENV_PASSTHROUGH_ADDITIONS
+
+指定允许从外部环境到 BitBake 数据库的额外变量集。该变量列表位于 [BB_ENV_PASSTHROUGH](#BB_ENV_PASSTHROUGH) 中的内部变量列表之上。
+
+## BB_PRESERVE_ENV
+
+禁用环境过滤，允许所有变量从外部环境进入 BitBake 的数据存储。
+
+**备注**：您必须在外部环境中设置该变量，以使其发挥作用。
+
+## BB_ORIGENV
+
+包含运行 BitBake 的原始外部环境的副本。该副本是在任何配置为从外部环境传递的变量值被过滤到 BitBake 数据存储之前获取的。
+
+**备注**：该变量的内容是一个数据存储对象，可以使用正常的数据存储操作进行查询。
+
+## BITBAKE_UI
+
+用于指定运行 BitBake 时要使用的用户界面模块。使用此变量等同于使用 -u 命令行选项。
+
+**备注**：您必须在外部环境中设置该变量，以使其发挥作用。
