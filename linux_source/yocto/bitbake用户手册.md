@@ -484,6 +484,50 @@ EOF
 }
 ```
 
+## 2.2 定位和解析食谱
+
+在配置阶段，BitBake 将设置 [BBFILES](#BBFILES)。现在，BitBake 将使用它来构建一个要解析的配方列表，以及任何要应用的附加文件（.bbappend）。[BBFILES](#BBFILES) 是一个空格分隔的可用文件列表，支持通配符。例如：
+
+```bash
+BBFILES = "/path/to/bbfiles/*.bb /path/to/appends/*.bbappend"
+```
+
+BitBake 会解析位于 [BBFILES](#BBFILES) 中的每个配方和附加文件，并将各种变量的值存储到数据存储中。
+
+**备注**：附加文件按照在 [BBFILES](#BBFILES) 中遇到的顺序应用。
+
+对于每个文件，都会制作一份全新的基本配置副本，然后逐行解析配方。任何继承语句都会导致 BitBake 使用 [BBPATH](#BBPATH) 作为搜索路径查找并解析类文件（.bbclass）。最后，BitBake 会按顺序解析在 [BBFILES](#BBFILES) 中找到的任何附加文件。
+
+一个常见的惯例是使用配方文件名来定义元数据。例如，在 bitbake.conf 中，配方名称和版本用于设置变量 [PN](#PN) 和 [PV](#PV)：
+
+```bash
+PN = "${@bb.parse.vars_from_file(d.getVar('FILE', False),d)[0] or 'defaultpkgname'}"
+PV = "${@bb.parse.vars_from_file(d.getVar('FILE', False),d)[1] or '1.0'}"
+```
+
+在此示例中，名为 "something_1.2.3.bb" 的配方会将 [PN](#PN) 设置为 "something"，将 [PV](#PV) 设置为 "1.2.3"。
+
+当配方解析完成时，BitBake 会得到配方定义的任务列表、由键和值组成的数据集以及任务的相关信息。
+
+BitBake 不需要所有这些信息。它只需要其中的一小部分信息就能对食谱做出决定。因此，BitBake 会缓存它感兴趣的值，而不会存储其他信息。经验表明，重新解析元数据比将其写入磁盘再重新加载要快。
+
+在可能的情况下，后续的 BitBake 命令会重复使用配方信息缓存。缓存的有效性是通过首先计算基础配置数据的校验和（参见 [BB_HASHCONFIG_IGNORE_VARS](#BB_HASHCONFIG_IGNORE_VARS)），然后检查校验和是否匹配来确定的。如果校验和与缓存中的数据相匹配，且配方和类文件没有更改，则 BitBake 可以使用缓存。然后，BitBake 会重新加载缓存中的配方信息，而不是从头开始重新解析。
+
+配方文件集允许用户拥有多个包含相同软件包的 .bb 文件库。例如，用户可以很容易地使用它们来制作上游版本库的本地副本，但要对其进行自定义修改，而不希望上游版本库中的内容被修改。下面是一个例子：
+
+```bash
+BBFILES = "/stuff/openembedded/*/*.bb /stuff/openembedded.modified/*/*.bb"
+BBFILE_COLLECTIONS = "upstream local"
+BBFILE_PATTERN_upstream = "^/stuff/openembedded/"
+BBFILE_PATTERN_local = "^/stuff/openembedded.modified/"
+BBFILE_PRIORITY_upstream = "5"
+BBFILE_PRIORITY_local = "10"
+```
+
+**备注**：层机制是目前首选的代码收集方法。虽然收集代码仍然存在，但其主要用途是设置层优先级和处理层之间的重叠（冲突）。
+
+
+
 
 
 
@@ -567,6 +611,42 @@ DEPENDS = "b"
 
 有关运行时依赖关系的信息，请参阅 [RDEPENDS](#RDEPENDS) 变量。
 
+## RDEPENDS
+
+列出软件包的运行时依赖包（即其他软件包），必须安装这些依赖包才能使构建的软件包正常运行。如果在构建过程中找不到此列表中的软件包，就会出现构建错误。
+
+由于 [RDEPENDS](#RDEPENDS) 变量适用于正在编译的软件包，因此应始终以附带软件包名称的形式使用该变量。例如，假设你正在构建一个依赖于 perl 软件包的开发软件包。在这种情况下，你将使用下面的 [RDEPENDS](#RDEPENDS) 语句：
+
+```bash
+RDEPENDS:${PN}-dev += "perl"
+```
+
+在本例中，开发包依赖于 perl 包。因此， [RDEPENDS](#RDEPENDS) 变量中包含 ${PN}-dev 软件包名称。
+
+BitBake 支持指定版本化的依赖关系。虽然语法因打包格式而异，但 BitBake 隐藏了这些差异。以下是使用 [RDEPENDS](#RDEPENDS) 变量指定版本的一般语法：
+
+```bash
+RDEPENDS:${PN} = "package (operator version)"
+```
+
+对于操作员，您可以指定以下内容：
+
+```bash
+=
+<
+>
+<=
+>=
+```
+
+例如，下面的代码将依赖版本为 1.2 或更高的软件包 foo：
+
+```bash
+RDEPENDS:${PN} = "foo (>= 1.2)"
+```
+
+有关联编时依赖关系的信息，请参阅 [DEPENDS](#DEPENDS) 变量。
+
 ## BBPATH
 
 BitBake 用来查找类（.bbclass）和配置（.conf）文件。该变量类似于 PATH 变量。
@@ -621,38 +701,16 @@ BitBake 在同一时间应并行运行的最大任务数。如果您的主机开
 
 有关 [INHERIT](#INHERIT) 的更多信息，请参阅 [INHERIT 配置指令](#3.4.5 INHERIT 配置指令)部分。
 
-## RDEPENDS
+## PN
 
-列出软件包的运行时依赖包（即其他软件包），必须安装这些依赖包才能使构建的软件包正常运行。如果在构建过程中找不到此列表中的软件包，就会出现构建错误。
+食谱名称。
 
-由于 [RDEPENDS](#RDEPENDS) 变量适用于正在编译的软件包，因此应始终以附带软件包名称的形式使用该变量。例如，假设你正在构建一个依赖于 perl 软件包的开发软件包。在这种情况下，你将使用下面的 [RDEPENDS](#RDEPENDS) 语句：
+## PR
 
-```bash
-RDEPENDS:${PN}-dev += "perl"
-```
+食谱的修订。
 
-在本例中，开发包依赖于 perl 包。因此， [RDEPENDS](#RDEPENDS) 变量中包含 ${PN}-dev 软件包名称。
+## BB_HASHCONFIG_IGNORE_VARS
 
-BitBake 支持指定版本化的依赖关系。虽然语法因打包格式而异，但 BitBake 隐藏了这些差异。以下是使用 [RDEPENDS](#RDEPENDS) 变量指定版本的一般语法：
+列出从基础配置校验中排除的变量，用于确定缓存是否可以重复使用。
 
-```bash
-RDEPENDS:${PN} = "package (operator version)"
-```
-
-对于操作员，您可以指定以下内容：
-
-```bash
-=
-<
->
-<=
->=
-```
-
-例如，下面的代码将依赖版本为 1.2 或更高的软件包 foo：
-
-```bash
-RDEPENDS:${PN} = "foo (>= 1.2)"
-```
-
-有关联编时依赖关系的信息，请参阅 [DEPENDS](#DEPENDS) 变量。
+BitBake 决定是否重新解析主元数据的方法之一，是对基础配置数据的数据存储中的变量进行校验。在检查是否重新解析并重建缓存时，通常要排除一些变量。例如，你通常会排除 TIME 和 DATE，因为这些变量总是在变化。如果不排除它们，BitBake 将永远不会重新使用缓存。
