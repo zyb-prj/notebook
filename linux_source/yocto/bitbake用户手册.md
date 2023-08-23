@@ -526,9 +526,17 @@ BBFILE_PRIORITY_local = "10"
 
 **备注**：层机制是目前首选的代码收集方法。虽然收集代码仍然存在，但其主要用途是设置层优先级和处理层之间的重叠（冲突）。
 
+## 2.3 Providers 提供商
 
+假设 BitBake 已收到执行目标的指令，并且所有配方文件都已解析，那么 BitBake 就会开始计算如何构建目标。BitBake 会查看每个配方的 [PROVIDES](#PROVIDES) 列表。[PROVIDES](#PROVIDES) 列表是配方的名称列表。每个配方的 [PROVIDES](#PROVIDES) 列表通过配方的 [PN](#PN) 变量隐式创建，通过配方的 [PROVIDES](#PROVIDES) 变量显式创建，而 [PROVIDES](#PROVIDES) 变量是可选的。
 
+当配方使用 [PROVIDES](#PROVIDES) 时，除了隐含的 [PN](#PN) 名称外，该配方的功能可以在其他名称下找到。例如，假设一个名为 keyboard_1.0.bb 的配方包含以下内容：
 
+```bash
+PROVIDES += "fullkeyboard"
+```
+
+此配方的 [PROVIDES](#PROVIDES) 列表变成了隐式的 "keyboard "和显式的 "fullkeyboard"。因此，keyboard_1.0.bb 中的功能可以在两个不同的名称下找到。
 
 
 
@@ -714,3 +722,19 @@ BitBake 在同一时间应并行运行的最大任务数。如果您的主机开
 列出从基础配置校验中排除的变量，用于确定缓存是否可以重复使用。
 
 BitBake 决定是否重新解析主元数据的方法之一，是对基础配置数据的数据存储中的变量进行校验。在检查是否重新解析并重建缓存时，通常要排除一些变量。例如，你通常会排除 TIME 和 DATE，因为这些变量总是在变化。如果不排除它们，BitBake 将永远不会重新使用缓存。
+
+## PROVIDES
+
+可用于查找特定配方的别名列表。默认情况下，配方自身的 PN 已隐含在 [PROVIDES](#PROVIDES) 列表中。如果配方使用了 [PROVIDES](#PROVIDES)，那么附加别名就是配方的同义词，可以在构建过程中满足 [DEPENDS](#DEPENDS) 指定的其他配方的依赖关系。
+
+下面是配方文件 libav_0.8.11.bb 中的 [PROVIDES](#PROVIDES) 语句示例：
+
+```bash
+PROVIDES += "libpostproc"
+```
+
+[PROVIDES](#PROVIDES) 语句导致 "libav "配方也被称为 "libpostproc"。
+
+[PROVIDES](#PROVIDES) 机制除了提供备用名称的配方外，还可用于实现虚拟目标。虚拟目标是与某些特定功能（如 Linux 内核）相对应的名称。提供相关功能的食谱会在 [PROVIDES](#PROVIDES) 中列出虚拟目标。依赖于相关功能的食谱可以在 [DEPENDS](#DEPENDS) 中包含虚拟目标，以便于选择提供者。
+
+通常，虚拟目标的名称形式为 "virtual/function"（如 "virtual/kernel"）。斜线只是名称的一部分，在语法上没有任何意义。
