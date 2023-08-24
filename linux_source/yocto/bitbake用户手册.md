@@ -683,6 +683,97 @@ BitBake 首先调用 [BB_HASHCHECK_FUNCTION](#BB_HASHCHECK_FUNCTION) 变量所�
 
 有关场景元数据的更多信息，请参阅[任务校验和场景](#3.12 任务校验和 Setscene)部分。
 
+## 2.10 Logging
+
+除了通过标准命令行选项来控制编译时的冗长程度外，bitbake 还支持用户通过 [BB_LOGCONFIG]((#BB_LOGCONFIG)) 变量来配置 Python 日志功能。这个变量定义了一个 JSON 或 YAML 日志配置，它会被智能地合并到默认配置中。日志配置的合并规则如下：
+
+- 如果顶层关键字 bitbake_merge 设置为 "False"，用户定义的配置将完全取代默认配置。在这种情况下，所有其他规则都将被忽略。
+- 用户配置的顶层版本必须与默认配置的值一致。
+- handlers、formatters 或 filters 中定义的任何键值都将合并到默认配置中的同一部分，如果出现冲突，用户指定的键值将取代默认键值。实际上，这意味着如果默认配置和用户配置都指定了名为 myhandler 的处理程序，用户定义的处理程序将取代默认处理程序。为防止用户无意中替换默认处理程序、格式器或过滤器，所有默认处理程序都以 "BitBake" 作为前缀。
+- 如果用户定义的日志记录器的 bitbake_merge 关键字设置为 "False"，则该日志记录器将被用户配置完全取代。在这种情况下，其他规则将不适用于该记录仪。
+- 给定日志记录器的所有用户定义的过滤器和处理程序属性都将与默认日志记录器的相应属性合并。例如，如果用户配置在 BitBake.SigGen 中添加了名为 myFilter 的过滤器，而默认配置添加了名为 BitBake.defaultFilter 的过滤器，那么这两个过滤器都将应用于日志记录器。
+
+第一个例子是创建 hashequiv.json 用户日志配置文件，将所有 VERBOSE 或更高优先级的哈希等价相关信息记录到名为 hashequiv.log 的文件中：
+
+```json
+{
+    "version": 1,
+    "handlers": {
+        "autobuilderlog": {
+            "class": "logging.FileHandler",
+            "formatter": "logfileFormatter",
+            "level": "DEBUG",
+            "filename": "hashequiv.log",
+            "mode": "w"
+        }
+    },
+    "formatters": {
+            "logfileFormatter": {
+                "format": "%(name)s: %(levelname)s: %(message)s"
+            }
+    },
+    "loggers": {
+        "BitBake.SigGen.HashEquiv": {
+            "level": "VERBOSE",
+            "handlers": ["autobuilderlog"]
+        },
+        "BitBake.RunQueue.HashEquiv": {
+            "level": "VERBOSE",
+            "handlers": ["autobuilderlog"]
+        }
+    }
+}
+```
+
+Then set the [BB_LOGCONFIG](#BB_LOGCONFIG) variable in `conf/local.conf`:
+
+```bash
+BB_LOGCONFIG = "hashequiv.json"
+```
+
+另一个例子是 warn.json 文件，它将所有警告和优先级更高的信息记录到 warn.log 文件中：
+
+```bash
+{
+    "version": 1,
+    "formatters": {
+        "warnlogFormatter": {
+            "()": "bb.msg.BBLogFormatter",
+            "format": "%(levelname)s: %(message)s"
+        }
+    },
+
+    "handlers": {
+        "warnlog": {
+            "class": "logging.FileHandler",
+            "formatter": "warnlogFormatter",
+            "level": "WARNING",
+            "filename": "warn.log"
+        }
+    },
+
+    "loggers": {
+        "BitBake": {
+            "handlers": ["warnlog"]
+        }
+    },
+
+    "@disable_existing_loggers": false
+}
+```
+
+请注意，BitBake 用于结构化日志的辅助类是在 lib/bb/msg.py 中实现的。
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 3 语法和运算符
@@ -976,6 +1067,20 @@ bitbake target
 以空格分隔的 BitBake 用来构建软件的配方文件列表。
 
 指定配方文件时，可以使用 Python 的 glob 语法进行模式匹配。有关语法的详细信息，请点击前面的链接查看文档。
+
+## BB_LOGCONFIG
+
+指定包含用户日志配置的配置文件名称。更多信息请参阅[日志记录](#2.10 Logging)。
+
+## BB_LOGFMT
+
+指定保存在 ${[T]((#T))} 中的日志文件名。默认情况下，[BB_LOGFMT]((#BB_LOGFMT)) 变量未定义，日志文件名按以下形式创建：
+
+```bash
+log.{task}.{pid}
+```
+
+如果要强制日志文件使用特定名称，可以在配置文件中设置该变量。
 
 ## BB_ENV_PASSTHROUGH
 
