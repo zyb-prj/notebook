@@ -131,13 +131,13 @@ BitBake 希望每个附加文件都有一个相应的配方文件。此外，附
 
 为附加文件命名时，可以使用"%"通配符来匹配配方名称。例如，假设有一个附加文件，其名称如下：
 
-```
+```sh
 busybox_1.21.%.bbappend
 ```
 
 该附加文件将匹配任何 busybox_1.21.x.bb 版本的配方。因此，该附加文件将匹配以下配方名称：
 
-```
+```sh
 busybox_1.21.1.bb
 busybox_1.21.2.bb
 busybox_1.21.3.bb
@@ -159,13 +159,13 @@ busybox_1.21.3.bb
 
     下面是一个克隆 BitBake 仓库的例子：
 
-    ```bash
+    ```sh
     git clone git://git.openembedded.org/bitbake
     ```
 
     该命令将 BitBake Git 仓库克隆到一个名为 bitbake 的目录中。或者，如果你想把新目录命名为 bitbake 以外的名字，也可以在 git clone 命令后指定一个目录。下面是一个命名为 bbdev 的例子：
 
-    ```bash
+    ```sh
     git clone git://git.openembedded.org/bitbake bbdev 
     ```
 
@@ -177,13 +177,13 @@ busybox_1.21.3.bb
 
     - 下面的示例下载了 BitBake 1.17.0 版本的快照：
 
-        ```bash
+        ```sh
         wget https://git.openembedded.org/bitbake/snapshot/bitbake-1.17.0.tar.gz
         ```
 
     - 使用 tar 工具提取 tar 包后，就会得到一个名为 bitbake-1.17.0 的目录：
 
-        ```bash
+        ```sh
         tar zxpvf bitbake-1.17.0.tar.gz
         ```
 
@@ -197,7 +197,7 @@ bitbake 命令是 BitBake 工具的主要接口。本节将介绍 BitBake 命令
 
 以下是 BitBake 的用法和语法：
 
-```bash
+```sh
 $ bitbake -h
 使用方法: bitbake [options] [recipename/target recipe:do_task ...]
 
@@ -264,13 +264,13 @@ Options:
 
 执行单个配方文件的任务相对简单。您只需指定相关文件，BitBake 就会对其进行解析并执行指定任务。如果您没有指定任务，BitBake 会执行默认任务，即 "构建"。在执行时，BitBake 会遵从任务间的依赖关系。
 
-```bash
+```sh
 bitbake -b foo_1.0.bb
 ```
 
 以下命令在 foo.bb 配方文件上运行清理任务：
 
-```bash
+```sh
 bitbake -b foo.bb -c clean
 ```
 
@@ -282,13 +282,13 @@ bitbake -b foo.bb -c clean
 
 如果不使用"-buildfile "或"-b"，bitbake 命令只接受 "PROVIDES"。您不能提供任何其他信息。默认情况下，配方文件一般会 "提供 "其 "packagename"，如下例所示：
 
-```bash
+```sh
 bitbake foo
 ```
 
 下一个示例 "PROVIDES "软件包名称，并使用"-c "选项告诉 BitBake 只执行 do_clean 任务：
 
-```bash
+```sh
 bitbake -c clean foo
 ```
 
@@ -296,7 +296,7 @@ bitbake -c clean foo
 
 当您指定多个目标时，BitBake 命令行支持为各个目标指定不同的任务。例如，假设您有两个目标（或配方）myfirstrecipe 和 mysecondrecipe，您需要 BitBake 为第一个配方运行任务 A，为第二个配方运行任务 B：
 
-```bash
+```sh
 bitbake myfirstrecipe:do_taskA mysecondrecipe:do_taskB
 ```
 
@@ -315,13 +315,13 @@ BitBake 可以使用点语法生成依赖关系图。您可以使用 [Graphviz](
 
 下面是创建依赖关系图的示例：
 
-```
+```sh
 bitbake -g foo
 ```
 
 下面示例将 OpenEmbedded 中常见的依赖关系从图中删除：
 
-```
+```sh
 bitbake -g -I virtual/kernel -I eglibc foo
 ```
 
@@ -339,19 +339,19 @@ BitBake 可以使用一条命令构建多个映像或软件包，不同的目标
 
 除了为每个目标分别创建配置文件外，还必须启用 BitBake 以执行多重配置构建。启用方法是在 local.conf 配置文件中设置 BBMULTICONFIG 变量。举个例子，假设你在构建目录中定义了 target1 和 target2 的配置文件。local.conf 文件中的以下语句既能让 BitBake 执行多重配置编译，又能指定两个额外的 multiconfigs：
 
-```bash
+```sh
 BBMULTICONFIG = "target1 target2"
 ```
 
 目标配置文件就绪并启用 BitBake 以执行多重配置编译后，使用以下命令启动编译：
 
-```bash
+```sh
 bitbake [mc:multiconfigname:]target [[[mc:multiconfigname:]target] ... ]
 ```
 
 Here is an example for two extra multiconfigs: `target1` and `target2`:
 
-```bash
+```sh
 bitbake mc::target mc:target1:target mc:target2:target
 ```
 
@@ -361,13 +361,13 @@ bitbake mc::target mc:target1:target mc:target2:target
 
 要在多重配置构建中启用依赖项，必须在配方中使用以下语句形式声明依赖项：
 
-```bash
+```sh
 task_or_package[mcdepends] = "mc:from_multiconfig:to_multiconfig:recipe_name:task_on_which_to_depend"
 ```
 
 为了更好地说明如何使用该语句，请看一个包含两个多重图标（target1 和 target2）的示例：
 
-```bash
+```sh
 image_task[mcdepends] = "mc:target1:target2:image2:rootfs_task"
 ```
 
@@ -377,7 +377,7 @@ image_task[mcdepends] = "mc:target1:target2:image2:rootfs_task"
 
 一旦设置了该依赖关系，就可以使用 BitBake 命令构建 "target1 "多参数配置，如下所示：
 
-```bash
+```sh
 bitbake mc:target1:image1
 ```
 
@@ -387,7 +387,7 @@ bitbake mc:target1:image1
 
 让一个配方依赖于另一个构建的根文件系统似乎并不那么有用。请考虑对 image1 配方中的语句作如下修改：
 
-```bash
+```sh
 image_task[mcdepends] = "mc:target1:target2:image2:image_task"
 ```
 
@@ -515,7 +515,7 @@ BitBake 不需要所有这些信息。它只需要其中的一小部分信息就
 
 配方文件集允许用户拥有多个包含相同软件包的 .bb 文件库。例如，用户可以很容易地使用它们来制作上游版本库的本地副本，但要对其进行自定义修改，而不希望上游版本库中的内容被修改。下面是一个例子：
 
-```bash
+```sh
 BBFILES = "/stuff/openembedded/*/*.bb /stuff/openembedded.modified/*/*.bb"
 BBFILE_COLLECTIONS = "upstream local"
 BBFILE_PATTERN_upstream = "^/stuff/openembedded/"
@@ -532,7 +532,7 @@ BBFILE_PRIORITY_local = "10"
 
 当配方使用 [PROVIDES](#PROVIDES) 时，除了隐含的 [PN](#PN) 名称外，该配方的功能可以在其他名称下找到。例如，假设一个名为 keyboard_1.0.bb 的配方包含以下内容：
 
-```bash
+```sh
 PROVIDES += "fullkeyboard"
 ```
 
@@ -544,7 +544,7 @@ PROVIDES += "fullkeyboard"
 
 一个目标有多个提供程序的常见例子是 "virtual/kernel"，它在每个内核配方的 [PROVIDES](#PROVIDES) 列表中。每台机器通常通过在机器配置文件中使用类似下面的一行来选择最佳内核提供程序：
 
-```bash
+```sh
 PREFERRED_PROVIDER_virtual/kernel = "linux-yocto"
 ```
 
@@ -560,13 +560,13 @@ PREFERRED_PROVIDER_virtual/kernel = "linux-yocto"
 
 因此，如果存在名为 a_1.2.bb 的配方，BitBake 默认会选择 1.2。不过，如果你在 BitBake 可解析的 .conf 文件中定义了以下变量，你就可以改变这一偏好：
 
-```bash
+```sh
 PREFERRED_VERSION_a = "1.1"
 ```
 
 **备注**：配方通常会提供两个版本--一个稳定的、有编号的（首选）版本，以及一个从源代码库自动签出的版本，后者被认为更 "先进"，但只能明确选择。例如，在 OpenEmbedded 代码库中，有一个用于 BusyBox 的标准版本化配方文件 busybox_1.22.1.bb，但也有一个基于 Git 的版本 busybox_git.bb，其中明确包含了以下一行内容：
 
-```bash
+```sh
 DEFAULT_PREFERENCE = "-1"
 ```
 
@@ -611,7 +611,7 @@ BitBake 运行任务的顺序由任务调度程序控制。可以配置调度程
 
 与工作目录的情况一样，在某些情况下依赖关系也会被忽略。在这种情况下，你可以使用类似下面的行文来指示编译过程忽略依赖关系：
 
-```bash
+```sh
 PACKAGE_ARCHS[vardepsexclude] = "MACHINE"
 ```
 
@@ -619,7 +619,7 @@ PACKAGE_ARCHS[vardepsexclude] = "MACHINE"
 
 同样，在某些情况下，我们需要添加 BitBake 无法找到的依赖项。您可以使用类似下面这样的行文来实现这一目的：
 
-```bash
+```sh
 PACKAGE_ARCHS[vardeps] = "MACHINE"
 ```
 
@@ -631,7 +631,7 @@ PACKAGE_ARCHS[vardeps] = "MACHINE"
 
 在代码层面，有多种方法可以影响基础哈希值和从属任务哈希值。在 BitBake 配置文件中，我们可以为 BitBake 提供一些额外信息，帮助它构建基础哈希值。下面的语句会有效地生成一个全局变量依赖性排除列表，即从不包含在任何校验和中的变量。本示例使用 OpenEmbedded 中的变量来说明这一概念：
 
-```bash
+```sh
 BB_BASEHASH_IGNORE_VARS ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \
     SSTATE_DIR THISDIR FILESEXTRAPATHS FILE_DIRNAME HOME LOGNAME SHELL \
     USER FILESPATH STAGING_DIR_HOST STAGING_DIR_TARGET COREBASE PRSERV_HOST \
@@ -643,7 +643,7 @@ BB_BASEHASH_IGNORE_VARS ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \
 
 决定通过依赖关系链包含哪些依赖任务哈希值的规则更为复杂，通常使用 Python 函数来实现。meta/lib/oe/sstatesig.py 中的代码展示了这方面的两个示例，还说明了如何根据需要在系统中插入自己的策略。该文件定义了 OpenEmbedded-Core 使用的基本签名生成器："OEBasicHash"。默认情况下，BitBake 会启用一个虚拟的 "noop "签名处理程序。这意味着其行为与以前的版本相比没有变化。通过 bitbake.conf 文件中的设置，OE-Core 默认使用 "OEBasicHash "签名处理程序：
 
-```bash
+```sh
 BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 ```
 
@@ -727,13 +727,13 @@ BitBake 首先调用 [BB_HASHCHECK_FUNCTION](#BB_HASHCHECK_FUNCTION) 变量所�
 
 Then set the [BB_LOGCONFIG](#BB_LOGCONFIG) variable in `conf/local.conf`:
 
-```bash
+```sh
 BB_LOGCONFIG = "hashequiv.json"
 ```
 
 另一个例子是 warn.json 文件，它将所有警告和优先级更高的信息记录到 warn.log 文件中：
 
-```bash
+```json
 {
     "version": 1,
     "formatters": {
@@ -778,6 +778,262 @@ BB_LOGCONFIG = "hashequiv.json"
 
 # 3 语法和运算符
 
+BitBake 文件有自己的语法。该语法与其他几种语言有相似之处，但也有一些独特的功能。本节将介绍可用的语法和运算符，并提供示例。
+
+## 3.1 基本语法
+
+本节提供了一些基本语法示例。
+
+### 3.1.1 基本变量设置
+
+下面的示例将 VARIABLE 设置为 "value"。该赋值在语句解析时立即发生。这是一个 "硬 "赋值。
+
+```sh
+VARIABLE = "value"
+```
+
+与预期一样，如果在赋值中包含前导空格或尾部空格，空格将被保留：
+
+```sh
+VARIABLE = " value"
+VARIABLE = "value "
+```
+
+将 VARIABLE 设置为`""`会将其设置为空字符串，而将变量设置为`" "`则会将其设置为空格（即这两个值并不相同）。
+
+```sh
+VARIABLE = ""
+VARIABLE = " "
+```
+
+在设置变量值时，可以使用单引号代替双引号。这样可以使用包含双引号的值：
+
+```sh
+VARIABLE = 'I have a " in my value'
+```
+
+**备注**：与 Bourne shell 不同，单引号在所有其他方面的作用与双引号相同。它们不会抑制变量扩展。
+
+### 3.1.2 修改现有变量
+
+有时需要修改现有变量。以下是一些需要修改现有变量的情况：
+
+- 定制使用变量的食谱。
+
+
+- 更改 *.bbclass 文件中使用的变量默认值。
+
+
+- 更改 *.bbappend 文件中的变量，以覆盖原始配方中的变量。
+
+
+- 更改配置文件中的变量，使其值覆盖现有配置。
+
+更改变量值有时取决于变量值最初是如何分配的，也取决于更改的预期目的。特别是，当你在一个有默认值的变量上附加一个值时，得到的值可能并不是你所期望的。在这种情况下，您提供的值可能会取代该值，而不是追加到默认值中。
+
+如果在更改变量值后出现无法解释的情况，可以使用 BitBake 检查可疑变量的实际值。您可以对配置和配方级别的更改进行这些检查：
+
+- 要更改配置，请使用以下方法：
+
+    ```sh
+    bitbake -e
+    ```
+
+    该命令在解析配置文件（如 local.conf、bblayers.conf、bitbake.conf 等）后显示变量值。
+
+    **备注**：在命令输出中，导出到环境中的变量会在前面加上 "export "字符串。
+
+- 要查找特定配方中给定变量的变化，请使用以下方法：
+
+    ```sh
+    bitbake recipename -e | grep VARIABLENAME=\"
+    ```
+
+    该命令将检查变量是否被添加到特定配方中。
+
+### 3.1.3 Line Joining 线性连接
+
+在函数之外，BitBake 在解析语句之前，会将以反斜杠字符`\`结尾的行与下一行连接起来。字符`\`的最常见用法是将变量赋值分隔成多行，如下例所示：
+
+```sh
+FOO = "bar \
+       baz \
+       qaz"
+```
+
+在连接行时，`\`字符及其后面的换行符都会被删除。因此，FOO 的值中不会出现换行符。
+
+再看下面这个例子，两个赋值都把 "barbaz "赋给了 FOO：
+
+```sh
+FOO = "barbaz"
+FOO = "bar\
+baz"
+```
+
+**备注**：BitBake 不解释变量值中的转义序列，如"\n"。要使这些转义序列产生作用，必须将变量值传递给能解释转义序列的实用程序，如 printf 或 echo -n。
+
+### 3.1.4 变量扩展
+
+变量可以引用其他变量的内容，其语法类似于 Bourne shell 中的变量扩展。以下赋值的结果是 A 包含 "aval"，B 等价于 "preavalpost"。
+
+```sh
+A = "aval"
+B = "pre${A}post"
+```
+
+**备注**：与 Bourne shell 不同，大括号是强制性的：只有 `${FOO}`而不是`$FOOO`才被视为 FOO 的扩展。
+
+"="操作符不会立即展开右侧的变量引用。相反，在实际使用赋值的变量之前，会延迟展开。结果取决于引用变量的当前值。下面的示例可以说明这种行为：
+
+```sh
+A = "${B} baz"
+B = "${C} bar"
+C = "foo"
+*At this point, ${A} equals "foo bar baz"*
+C = "qux"
+*At this point, ${A} equals "qux bar baz"*
+B = "norf"
+*At this point, ${A} equals "norf baz"*
+```
+
+这种行为与[立即变量扩展（:=）](#3.1.7 立即变量扩展 :=)运算符形成鲜明对比。
+
+如果在一个不存在的变量上使用变量扩展语法，字符串将保持原样。例如，在下面的赋值中，只要 FOO 不存在，BAR 就会扩展为字面字符串"${FOO}"。
+
+```sh
+BAR = "${FOO}"
+```
+
+### 3.1.5  设置默认值 ?=
+
+您可以使用`?=`操作符对变量进行 "软" 赋值。如果在语句解析时变量未定义，则可以使用这种赋值方式定义变量；如果变量有值，则可以不定义变量值。下面是一个例子：
+
+```sh
+A ?= "aval"
+```
+
+如果在解析该语句时 A 已被设置，变量将保留其值。但如果 A 未被设置，变量将被设置为 "aval"。
+
+**备注**：该赋值是即时赋值。因此，如果一个变量存在多个`?=`赋值，则最终会使用第一个赋值。
+
+### 3.1.6 设置弱默认值 ??=
+
+变量的弱缺省值是指在没有通过其他赋值操作符赋值的情况下，该变量将扩展到的值。操作符`??=`立即生效，并替换之前定义的弱缺省值。下面是一个示例：
+
+```sh
+W ??= "x"
+A := "${W}" # Immediate variable expansion
+W ??= "y"
+B := "${W}" # Immediate variable expansion
+W ??= "z"
+C = "${W}"
+W ?= "i"
+```
+
+解析后，我们将得到：
+
+```sh
+A = "x"
+B = "y"
+C = "i"
+W = "i"
+```
+
+附加和预置非覆盖样式将不会替代弱默认值，这意味着在解析后：
+
+```sh
+W ??= "x"
+W += "y"
+```
+
+我们将得到：
+
+```sh
+W = " y"
+```
+
+另一方面，覆盖式追加/预追加/删除会在任何活动的弱缺省值被替换后应用：
+
+```sh
+W ??= "x"
+W:append = "y"
+```
+
+解析后，我们将得到：
+
+```sh
+W = "xy"
+```
+
+### 3.1.7 立即变量扩展 :=
+
+`:=`操作符会导致变量内容立即展开，而不是在实际使用变量时展开：
+
+```sh
+T = "123"
+A := "test ${T}"
+T = "456"
+B := "${T} ${C}"
+C = "cval"
+C := "${C}append"
+```
+
+在本例中，尽管 T 的最终值为 "456"，但 A 中仍包含 "test 123"。变量 B 最终将包含 "456 cvalappend"。这是因为在（立即）扩展过程中，对未定义变量的引用将保持不变。这与 GNU Make 不同，GNU Make 将未定义变量扩展为空。变量 C 包含 "cvalappend"，因为 ${C} 会立即展开为 "cval"。
+
+### 3.1.8 用空格追加 (+=) 和预追加 (=+)
+
+数值的追加和预追加很常见，可以使用运算符`+=`和`=+`来实现。这些操作符会在当前值和预置值或追加值之间插入一个空格。
+
+这些运算符在解析过程中立即生效。下面是一些例子：
+
+```sh
+B = "bval"
+B += "additionaldata"
+C = "cval"
+C =+ "test"
+```
+
+变量 B 包含 "bval additionaldata"，C 包含 "test cval"。
+
+### 3.1.9 无空格的附加 (.=) 和预置 (=.)
+
+如果要追加或预置值而不插入空格，请使用`.=`或`=.`操作符。
+
+这些运算符在解析过程中立即生效。下面是一些例子：
+
+```sh
+B = "bval"
+B .= "additionaldata"
+C = "cval"
+C =. "test"
+```
+
+变量 B 包含 "bvaladditionaldata"，C 包含 "testcval"。
+
+### 3.1.10 追加和预追加（覆盖样式语法）
+
+您还可以使用覆盖样式语法追加和预置变量值。使用这种语法时，不会插入空格。
+
+这些运算符与`:=`、`.=`、`=.`、`+=`和`=+`运算符的不同之处在于，它们的效果是在变量展开时应用，而不是立即应用。下面是一些示例：
+
+```sh
+B = "bval"
+B:append = " additional data"
+C = "cval"
+C:prepend = "additional data "
+D = "dval"
+D:append = "additional data"
+```
+
+变量 B 变为 "bval additional data"，C 变为 "additional data cval"。变量 D 变成 "dvaladditional data"。
+
+**备注**：使用覆盖语法时，必须控制所有空格。
+
+**备注**：重载按以下顺序应用：":append"、":prepend"、":remove"。
+
+还可以对 shell 函数和 BitBake 风格 Python 函数进行追加和预追加。有关示例，请参阅 "Shell 函数" 和 "BitBake 风格 Python 函数" 部分。
+
 ## 3.4 共享功能
 
 ### 3.4.5 INHERIT 配置指令
@@ -786,7 +1042,7 @@ BB_LOGCONFIG = "hashequiv.json"
 
 举个例子，假设需要从配置文件中继承一个名为 abc.bbclass 的类文件，如下所示：
 
-```bash
+```sh
 INHERIT += "abc"
 ```
 
@@ -796,13 +1052,139 @@ INHERIT += "abc"
 
 如果要使用该指令继承多个类，可以在 local.conf 文件的同一行中提供。使用空格分隔类。下面的示例展示了如何同时继承 autotools 和 pkgconfig 两个类：
 
-```bash
+```sh
 INHERIT += "autotools pkgconfig"
 ```
 
+## 3.5 函数
 
+### 3.5.1 Shell 函数
+
+用 shell 脚本编写的函数可以作为函数、任务或两者直接执行。它们也可以被其他 shell 函数调用。下面是一个 shell 函数定义示例：
+
+```sh
+some_function () {
+    echo "Hello World"
+}
+```
+
+在配方或类文件中创建这类函数时，需要遵循 shell 编程规则。脚本由 /bin/sh 执行，它可能不是一个 bash shell，但也可能是诸如 dash 这样的 shell。您不应该使用 Bash 特有的脚本（bashisms）。
+
+覆盖和覆盖式操作符（如 :append 和 :prepend）也可应用于 shell 函数。最常见的应用是在 .bbappend 文件中使用，以修改主代码中的函数。它也可用于修改从类继承的函数。
+
+举例如下：
+
+```sh
+do_foo() {
+    bbplain first
+    fn
+}
+
+fn:prepend() {
+    bbplain second
+}
+
+fn() {
+    bbplain third
+}
+
+do_foo:append() {
+    bbplain fourth
+}
+```
+
+运行 do_foo 会打印出以下内容：
+
+```sh
+recipename do_foo: first
+recipename do_foo: second
+recipename do_foo: third
+recipename do_foo: fourth
+```
+
+**备注**：覆盖和覆盖式操作符可应用于任何 shell 函数，而不仅仅是[任务](#3.6 Tasks 任务)。
+
+您可以使用 `bitbake -e recipename` 命令查看应用所有覆盖后的最终组装函数。
+
+### 3.5.2 BitBake 样式的 Python 函数
+
+这些函数用 Python 编写，由 BitBake 或其他 Python 函数使用 bb.build.exec_func() 执行。
+
+BitBake 函数的一个示例是：
+
+```python
+python some_python_function () {
+    d.setVar("TEXT", "Hello World")
+    print d.getVar("TEXT")
+}
+```
+
+因为已经导入了 Python 的 "bb "和 "os "模块，所以不需要再导入这些模块。另外，在这些函数中，数据存储 ("d") 是一个全局变量，总是自动可用的。
+
+**备注**：变量表达式 (例如 ${X} ) 在 Python 函数中不再展开。这种行为是有意为之，目的是让您可以自由地为可展开表达式设置变量值，而不会过早地展开它们。如果您确实希望在 Python 函数中展开变量，请使用 `d.getVar("X")` 。或者，对于更复杂的表达式，使用 `d.expand()`。
+
+与 shell 函数类似，您也可以在 BitBake 风格的 Python 函数中应用覆盖和覆盖式操作符。
+
+举例如下：
+
+```python
+python do_foo:prepend() {
+    bb.plain("first")
+}
+
+python do_foo() {
+    bb.plain("second")
+}
+
+python do_foo:append() {
+    bb.plain("third")
+}
+```
+
+运行 do_foo 会打印出以下内容：
+
+```sh
+recipename do_foo: first
+recipename do_foo: second
+recipename do_foo: third
+```
+
+您可以使用 `bitbake -e recipename` 命令查看应用所有覆盖后的最终组装函数。
+
+### 3.5.3 Python 函数
+
+这些函数用 Python 编写，由其他 Python 代码执行。Python 函数的例子是您打算从内联 Python 或从其他 Python 函数中调用的实用程序函数。下面是一个例子：
+
+```python
+def get_depends(d):
+    if d.getVar('SOMECONDITION'):
+        return "dependencywithcond"
+    else:
+        return "dependency"
+
+SOMECONDITION = "1"
+DEPENDS = "${@get_depends(d)}"
+```
+
+这将导致 DEPENDS 包含 dependencywithcond。
+
+下面是一些关于 Python 函数的知识：
+
+- Python 函数可以接受参数。
+
+
+- BitBake 数据存储不会自动可用。因此，您必须将其作为参数传递给函数。
+
+
+- "bb" 和 "os" Python 模块自动可用。您无需导入它们。
+
+### 3.5.4 BitBake 风格 Python 函数与 Python 函数的比较
+
+以下是 BitBake 风格 Python 函数与用 "def "定义的普通 Python 函数的一些重要区别：
 
 ## 3.6 Tasks 任务
+
+任务是 BitBake 的执行单元，它构成了 BitBake 可以为给定配方运行的步骤。任务仅在配方和类（即 .bb 文件和包含或继承自 .bb 文件的文件）中受支持。按照惯例，任务名称以 "do_"开头。
 
 ### 3.6.3 向构建任务环境传递信息
 
@@ -814,13 +1196,13 @@ INHERIT += "autotools pkgconfig"
 
 1. 告诉 BitBake 从环境中加载您想要的内容到数据存储中。这可以通过 [BB_ENV_PASSTHROUGH](#BB_ENV_PASSTHROUGH) 和 [BB_ENV_PASSTHROUGH_ADDITIONS](#BB_ENV_PASSTHROUGH_ADDITIONS) 变量来实现。例如，假设你想阻止编译系统访问 $HOME/.ccache 目录。下面的命令将环境变量 CCACHE_DIR 添加到 BitBake 的直通列表中，以允许该变量进入数据存储：
 
-    ```bash
+    ```sh
     export BB_ENV_PASSTHROUGH_ADDITIONS="$BB_ENV_PASSTHROUGH_ADDITIONS CCACHE_DIR"
     ```
 
 2. 告诉 BitBake 将加载到数据存储中的内容导出到每个运行任务的任务环境中。将环境中的内容加载到数据存储中（上一步）只能使其在数据存储中可用。要将其导出到每个运行任务的任务环境中，请在本地配置文件 local.conf 或发行版配置文件中使用类似下面的命令：
 
-    ```bash
+    ```sh
     export CCACHE_DIR
     ```
 
@@ -830,7 +1212,7 @@ INHERIT += "autotools pkgconfig"
 
 [BB_ORIGENV](#BB_ORIGENV) 变量返回一个数据存储对象，可以使用标准数据存储操作符（如 getVar(,False)）进行查询。例如，数据存储对象在查找原始 DISPLAY 变量时非常有用。下面是一个示例：
 
-```bash
+```sh
 origenv = d.getVar("BB_ORIGENV", False)
 bar = origenv.getVar("BAR", False)
 ```
@@ -854,7 +1236,7 @@ bar = origenv.getVar("BAR", False)
 
 BitBake 使用 addtask 指令管理指定配方文件内部的依赖关系。您可以使用 addtask 指令来指示某个任务何时依赖于其他任务，或者其他任务何时依赖于该配方。下面是一个示例：
 
-```bash
+```sh
 addtask printdate after do_fetch before do_build
 ```
 
@@ -866,7 +1248,7 @@ addtask printdate after do_fetch before do_build
 
 - do_configure 后的 addtask mytask 指令本身不会导致 do_mytask 运行：
 
-    ```bash
+    ```sh
     bitbake recipe -c mytask
     ```
 
@@ -876,7 +1258,7 @@ addtask printdate after do_fetch before do_build
 
 BitBake 使用 [DEPENDS](#DEPENDS) 变量来管理构建时间依赖关系。任务的 [deptask] 变量标志着 [DEPENDS](#DEPENDS) 中列出的每个项目的任务必须在该任务执行前完成。下面是一个例子：
 
-```bash
+```sh
 do_configure[deptask] = "do_populate_sysroot"
 ```
 
@@ -888,7 +1270,7 @@ BitBake 使用 [PACKAGES](#PACKAGES)、[RDEPENDS](#RDEPENDS) 和 [RRECOMMENDS](#
 
 [PACKAGES](#PACKAGES) 变量列出了运行时软件包。每个软件包都可以有 [RDEPENDS](#RDEPENDS) 和 [RRECOMMENDS](#RRECOMMENDS) 运行时依赖关系。任务的 [rdeptask] 标志用于标示每个运行时依赖项的任务，该任务必须在执行前完成。
 
-```bash
+```sh
 do_package_qa[rdeptask] = "do_packagedata"
 ```
 
@@ -900,7 +1282,7 @@ BitBake 使用 [recrdeptask] 标记来管理递归任务依赖关系。BitBake �
 
 [recrdeptask] 标志最常用于需要等待某些任务 "全局 "完成的高级配方中。例如，image.bbclass 有以下内容：
 
-```bash
+```sh
 do_rootfs[recrdeptask] += "do_packagedata"
 ```
 
@@ -908,7 +1290,7 @@ do_rootfs[recrdeptask] += "do_packagedata"
 
 BitBake 允许任务通过在任务列表中引用自身来递归依赖于自身：
 
-```bash
+```sh
 do_a[recrdeptask] = "do_a do_b"
 ```
 
@@ -918,7 +1300,7 @@ do_a[recrdeptask] = "do_a do_b"
 
 BitBake 以更通用的形式使用 [depends] 标志来管理任务间的依赖关系。这种更通用的形式允许对特定任务进行相互依赖检查，而不是对 [DEPENDS](#DEPENDS) 中的数据进行检查。下面是一个例子：
 
-```bash
+```sh
 do_patch[depends] = "quilt-native:do_populate_sysroot"
 ```
 
@@ -934,7 +1316,7 @@ BitBake 使用校验和（或签名）以及 setscene 来确定是否需要运�
 
 这些校验和存储在 [STAMP]((#STAMP)) 中。您可以使用以下 BitBake 命令检查校验和：
 
-```bash
+```sh
 bitbake-dumpsigs
 ```
 
@@ -980,7 +1362,7 @@ bitbake-dumpsigs
 
 请看这个简单的例子，两个配方分别名为 "a" 和 "b"，它们生成的软件包名称相似。在本例中，DEPENDS 语句出现在 "a" 配方中：
 
-```bash
+```sh
 DEPENDS = "b"
 ```
 
@@ -994,7 +1376,7 @@ DEPENDS = "b"
 
 由于 [RDEPENDS](#RDEPENDS) 变量适用于正在编译的软件包，因此应始终以附带软件包名称的形式使用该变量。例如，假设你正在构建一个依赖于 perl 软件包的开发软件包。在这种情况下，你将使用下面的 [RDEPENDS](#RDEPENDS) 语句：
 
-```bash
+```sh
 RDEPENDS:${PN}-dev += "perl"
 ```
 
@@ -1002,13 +1384,13 @@ RDEPENDS:${PN}-dev += "perl"
 
 BitBake 支持指定版本化的依赖关系。虽然语法因打包格式而异，但 BitBake 隐藏了这些差异。以下是使用 [RDEPENDS](#RDEPENDS) 变量指定版本的一般语法：
 
-```bash
+```sh
 RDEPENDS:${PN} = "package (operator version)"
 ```
 
 对于操作员，您可以指定以下内容：
 
-```bash
+```sh
 =
 <
 >
@@ -1018,7 +1400,7 @@ RDEPENDS:${PN} = "package (operator version)"
 
 例如，下面的代码将依赖版本为 1.2 或更高的软件包 foo：
 
-```bash
+```sh
 RDEPENDS:${PN} = "foo (>= 1.2)"
 ```
 
@@ -1030,13 +1412,13 @@ RDEPENDS:${PN} = "foo (>= 1.2)"
 
 BitBake 支持指定版本化推荐。虽然语法因打包格式而异，但 BitBake 隐藏了这些差异。以下是使用 [RRECOMMENDS](#RRECOMMENDS) 变量指定版本的一般语法：
 
-```bash
+```sh
 RRECOMMENDS:${PN} = "package (operator version)"
 ```
 
 对于操作员，您可以指定以下内容：
 
-```bash
+```sh
 =
 <
 >
@@ -1046,7 +1428,7 @@ RRECOMMENDS:${PN} = "package (operator version)"
 
 例如，下面的代码将依赖版本为 1.2 或更高的软件包 foo：
 
-```bash
+```sh
 RDEPENDS:${PN} = "foo (>= 1.2)"
 ```
 
@@ -1056,7 +1438,7 @@ BitBake 用来查找类（.bbclass）和配置（.conf）文件。该变量类�
 
 如果从联编目录之外的目录运行 BitBake，必须确保将 BBPATH 设为指向联编目录。像设置其他环境变量一样设置该变量，然后运行 BitBake：
 
-```bash
+```sh
 BBPATH="build_directory"
 export BBPATH
 bitbake target
@@ -1076,7 +1458,7 @@ bitbake target
 
 指定保存在 ${[T]((#T))} 中的日志文件名。默认情况下，[BB_LOGFMT]((#BB_LOGFMT)) 变量未定义，日志文件名按以下形式创建：
 
-```bash
+```sh
 log.{task}.{pid}
 ```
 
