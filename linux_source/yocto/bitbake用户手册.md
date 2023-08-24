@@ -582,6 +582,23 @@ BitBake 构建的每个目标都由多个任务组成，如获取、解包、修
 
 有关 BitBake 如何处理依赖关系的更多信息，请参阅 "[依赖关系](#3.10 Dependencies 依赖关系) "部分。
 
+## 2.6 The Task List 任务清单
+
+根据生成的提供程序列表和依赖关系信息，BitBake 现在可以准确计算出需要运行哪些任务以及运行顺序。执行任务部分有更多关于 BitBake 如何选择下一个执行任务的信息。
+
+## 2.7 Executing Tasks 执行任务
+
+任务可以是 shell 任务或 Python 任务。对于 shell 任务，BitBake 会在 [T](#T)/run.do_taskname.pid 中写入 shell 脚本，然后执行该脚本。生成的 shell 脚本包含所有导出变量，以及扩展了所有变量的 shell 函数。shell 脚本的输出将转入文件  [T](#T)/lod.do_taskname.pid。查看运行文件中已展开的 shell 函数和日志文件中的输出是一种有用的调试技术。
+
+对于 Python 任务，BitBake 在内部执行任务并将信息记录到控制终端。未来版本的 BitBake 将把函数写入文件，类似于 shell 任务的处理方式。日志记录的处理方式也将与 shell 任务类似。
+
+BitBake 运行任务的顺序由任务调度程序控制。可以配置调度程序，并为特定用例定义自定义实现。更多信息，请参阅控制行为的变量：
+
+- [BB_SCHEDULER](#BB_SCHEDULER)
+- [BB_SCHEDULERS](#BB_SCHEDULERS)
+
+可以在任务的主函数之前和之后运行函数。这可以使用列出要运行函数的任务的 [prefuncs] 和 [postfuncs] 标志来实现。
+
 ## 2.8 Checksums (Signatures) 校验和（签名）
 
 校验和是任务输入的唯一签名。任务的签名可用于确定任务是否需要运行。由于任务输入的变化会触发任务的运行，因此 BitBake 需要检测给定任务的所有输入。对于 shell 任务来说，这一点相当容易，因为 BitBake 会为每个任务生成一个 "运行 "shell 脚本，而且还可以创建一个校验和，让你对任务的数据何时发生变化有一个很好的了解。
@@ -647,6 +664,24 @@ BB_SIGNATURE_HANDLER ?= "OEBasicHash"
 **备注**：BitBake 的未来版本很可能会提供通过附加"-S "参数触发的其他签名处理程序。
 
 有关校验和元数据的更多信息，请参阅[任务校验和 Setscene](#3.12 任务校验和 Setscene) 部分。
+
+## 2.9 Setscene 场景
+
+Setscene 流程使 BitBake 能够处理 "预构建 "的人工制品。处理和重用这些工件的能力让 BitBake 不必每次都从头开始构建。相反，BitBake 可以在可能的情况下使用现有的构建工件。
+
+BitBake 需要有可靠的数据来表明一件人工制品是否兼容。上一节中描述的签名提供了一种理想的方式来表示一件工件是否兼容。如果签名相同，对象就可以重复使用。
+
+如果一个对象可以重复使用，那么问题就变成了如何用预制件替换给定的任务或任务集。BitBake 通过 "setscene "流程解决了这个问题。
+
+当 BitBake 被要求构建一个给定的目标时，在构建任何东西之前，它会首先询问它正在构建的任何目标或任何中间目标的缓存信息是否可用。如果缓存信息可用，BitBake 就会使用这些信息，而不是运行主要任务。
+
+BitBake 首先调用 [BB_HASHCHECK_FUNCTION](#BB_HASHCHECK_FUNCTION) 变量所定义的函数，该函数包含一个任务列表和相应的哈希值。该函数设计为快速调用，并会返回一个它认为可以获得工件的任务列表。
+
+接下来，BitBake 会针对返回的每个可能任务，执行该可能工件所涵盖任务的场景版本。任务的场景版本会在任务名称后附加"_setscene "字符串。例如，名称为 xxx 的任务有一个名为 xxx_setscene 的场景任务。任务的 setscene 版本会执行并提供必要的工具，返回成功或失败。
+
+如前所述，一件工具可以涵盖多项任务。例如，如果你已经有了编译好的二进制文件，那么获取编译器就毫无意义了。为了处理这个问题，BitBake 会为每个成功的 setscene 任务调用 [BB_SETSCENE_DEPVALID](#BB_SETSCENE_DEPVALID) 函数，以了解是否需要获取该任务的依赖项。
+
+有关场景元数据的更多信息，请参阅[任务校验和场景](#3.12 任务校验和 Setscene)部分。
 
 
 
@@ -804,13 +839,27 @@ do_patch[depends] = "quilt-native:do_populate_sysroot"
 
 ## 3.12 任务校验和 Setscene
 
+BitBake 使用校验和（或签名）以及 setscene 来确定是否需要运行任务。本节将介绍这一过程。为帮助理解 BitBake 是如何做到这一点的，本节假定了一个基于 OpenEmbedded 元数据的示例。
 
+这些校验和存储在 [STAMP]((#STAMP)) 中。您可以使用以下 BitBake 命令检查校验和：
 
+```bash
+bitbake-dumpsigs
+```
 
+该命令以可读格式返回签名数据，允许您检查 OpenEmbedded 编译系统生成签名时使用的输入。例如，使用`bitbake-dumpsigs`可以检查 C 应用程序（如 bash）的 do_compile 任务的 "sigdata"。运行该命令还会发现，"CC "变量是散列输入的一部分。对该变量的任何更改都会使印记失效，并导致 do_compile 任务运行。
 
+下面列出了相关变量：
 
+- [BB_HASHCHECK_FUNCTION](#BB_HASHCHECK_FUNCTION)：指定在任务执行的 "setscene "部分调用的函数名称，以便验证任务哈希值列表。
 
+- [BB_SETSCENE_DEPVALID](#BB_SETSCENE_DEPVALID)：指定 BitBake 调用的函数，用于确定 BitBake 是否需要满足 setscene 依赖关系。
 
+- [BB_TASKHASH](#BB_TASKHASH)：在执行中的任务中，该变量保存当前启用的签名生成器返回的任务哈希值。
+
+- [STAMP](#STAMP)：创建图章文件的基本路径。
+
+- [STAMPCLEAN](#STAMPCLEAN)：同样是创建图章文件的基本路径，但可以使用通配符匹配一定范围的文件进行清除操作。
 
 
 
@@ -1076,6 +1125,18 @@ PREFERRED_VERSION_linux-yocto = "4.12%"
 
 配方创建的软件包列表。
 
+## BB_SETSCENE_DEPVALID
+
+指定 BitBake 调用的函数，用于确定 BitBake 是否需要满足 setscene 依赖性。
+
+运行场景任务时，BitBake 需要知道该场景任务的哪些依赖项也需要运行。依赖项是否也需要运行在很大程度上取决于元数据。该变量指定的函数会根据是否需要满足依赖关系返回 "True" 或 "False"。
+
+## BB_HASHCHECK_FUNCTION
+
+指定在执行任务的 "setscene" 部分时调用的函数名称，以验证任务哈希值列表。该函数将返回应执行的 setscene 任务列表。
+
+在代码执行的这一阶段，我们的目标是快速验证给定的 setscene 函数是否可能起作用。一次性检查 setscene 函数列表比调用许多单独的任务要容易得多。返回的列表不一定完全准确。给定的 setscene 任务稍后仍有可能失败。不过，返回的数据越准确，构建效率就越高。
+
 ## BB_BASEHASH_IGNORE_VARS
 
 列出不包括在校验和依赖性数据中的变量。因此，被排除在外的变量可以在不影响校验和机制的情况下进行更改。一个常见的例子就是编译路径变量。BitBake 的输出不应（通常也不会）依赖于联编的目录。
@@ -1089,3 +1150,36 @@ PREFERRED_VERSION_linux-yocto = "4.12%"
 ## BB_TASKHASH
 
 在执行中的任务中，该变量保存当前启用的签名生成器返回的任务哈希值。
+
+## BB_SCHEDULER
+
+选择用于 BitBake 任务调度的调度程序名称。有三个选项：
+
+- basic - 基本框架，一切都源于此。使用该选项会导致任务在解析时按数字排序。
+
+
+- speed - 优先执行依赖于更多任务的任务。速度 "选项是默认选项。
+
+- completion - 一旦开始构建，调度程序就会尝试完成指定配方。
+
+## BB_SCHEDULERS
+
+定义要导入的自定义调度程序。自定义调度程序需要从 RunQueueScheduler 类派生。
+
+有关如何选择调度程序的信息，请参阅 [BB_SCHEDULER](#BB_SCHEDULER) 变量。
+
+## STAMP
+
+指定用于创建配方图章文件的基本路径。实际印章文件的路径是通过评估该字符串并添加附加信息构建的。
+
+## STAMPCLEAN
+
+指定用于创建配方印记文件的基本路径。与 [STAMP]((#STAMP)) 变量不同，[STAMPCLEAN]((#STAMPCLEAN)) 可以包含通配符，以匹配清理操作应删除的文件范围。BitBake 在创建新图章时，会使用清除操作移除任何其他应移除的图章。
+
+## T
+
+指向 BitBake 在构建特定配方时放置临时文件的目录，临时文件主要包括任务日志和脚本。
+
+## TOPDIR
+
+指向构建目录。BitBake 会自动设置此变量。
