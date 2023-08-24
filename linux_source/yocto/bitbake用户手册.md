@@ -538,7 +538,115 @@ PROVIDES += "fullkeyboard"
 
 此配方的 [PROVIDES](#PROVIDES) 列表变成了隐式的 "keyboard "和显式的 "fullkeyboard"。因此，keyboard_1.0.bb 中的功能可以在两个不同的名称下找到。
 
+## 2.4 Preferences 首选项
 
+[PROVIDES](#PROVIDES) 列表只是确定目标配方的解决方案的一部分。由于目标可能有多个提供商，因此 BitBake 需要通过确定提供商的偏好来确定提供商的优先级。
+
+一个目标有多个提供程序的常见例子是 "virtual/kernel"，它在每个内核配方的 [PROVIDES](#PROVIDES) 列表中。每台机器通常通过在机器配置文件中使用类似下面的一行来选择最佳内核提供程序：
+
+```bash
+PREFERRED_PROVIDER_virtual/kernel = "linux-yocto"
+```
+
+默认的 [PREFERRED_PROVIDER](#PREFERRED_PROVIDER) 是与目标名称相同的提供程序。BitBake 会遍历需要构建的每个目标，并使用此流程解析它们及其依赖关系。
+
+由于给定的提供程序可能存在多个版本，了解如何选择提供程序就变得复杂起来。BitBake 默认使用提供程序的最高版本。版本比较的方法与 Debian 相同。你可以使用 [PREFERRED_VERSION](#PREFERRED_VERSION) 变量来指定一个特定的版本。您可以使用 [DEFAULT_PREFERENCE](#DEFAULT_PREFERENCE) 变量来影响顺序。
+
+默认情况下，文件的首选项为 "0"。将 [DEFAULT_PREFERENCE](#DEFAULT_PREFERENCE) 设置为"-1 "后，除非明确引用，否则配方将不会被使用。将 [DEFAULT_PREFERENCE](#DEFAULT_PREFERENCE) 设置为 "1"，则配方可能会被使用。[PREFERRED_VERSION](#PREFERRED_VERSION) 优先于任何 [DEFAULT_PREFERENCE](#DEFAULT_PREFERENCE) 设置。[DEFAULT_PREFERENCE](#DEFAULT_PREFERENCE) 通常用于标记较新和试验性较强的配方版本，直到这些版本经过充分测试被认为是稳定版本。
+
+当某个配方有多个 "版本 "时，除非另有说明，否则 BitBake 默认选择最新版本。如果相关配方的 [DEFAULT_PREFERENCE](#DEFAULT_PREFERENCE) 设置低于其他配方（默认值为 0），则不会被选中。这样，维护配方文件库的人员就可以指定他们对默认选定版本的偏好。此外，用户也可以指定自己喜欢的版本。
+
+如果第一个配方名为 a_1.1.bb，那么 [PN](#PN) 变量将设为 "a"，[PV](#PV) 变量将设为 1.1。
+
+因此，如果存在名为 a_1.2.bb 的配方，BitBake 默认会选择 1.2。不过，如果你在 BitBake 可解析的 .conf 文件中定义了以下变量，你就可以改变这一偏好：
+
+```bash
+PREFERRED_VERSION_a = "1.1"
+```
+
+**备注**：配方通常会提供两个版本--一个稳定的、有编号的（首选）版本，以及一个从源代码库自动签出的版本，后者被认为更 "先进"，但只能明确选择。例如，在 OpenEmbedded 代码库中，有一个用于 BusyBox 的标准版本化配方文件 busybox_1.22.1.bb，但也有一个基于 Git 的版本 busybox_git.bb，其中明确包含了以下一行内容：
+
+```bash
+DEFAULT_PREFERENCE = "-1"
+```
+
+以确保除非开发者另有选择，否则编号的稳定版本始终是首选。
+
+
+
+## 2.5 Dependencies 依赖关系
+
+BitBake 构建的每个目标都由多个任务组成，如获取、解包、修补、配置和编译。为了在多核系统上获得最佳性能，BitBake 将每个任务都视为一个独立的实体，有自己的依赖关系集。
+
+依赖关系通过几个变量来定义。您可以在本手册末尾的 "变量词汇表 "中找到有关 BitBake 使用的变量的信息。在基本层面上，只需知道 BitBake 在计算依赖关系时使用 [DEPENDS](#DEPENDS) 和 [RDEPENDS](#RDEPENDS) 变量就足够了。
+
+有关 BitBake 如何处理依赖关系的更多信息，请参阅 "[依赖关系](#3.10 Dependencies 依赖关系) "部分。
+
+## 2.8 Checksums (Signatures) 校验和（签名）
+
+校验和是任务输入的唯一签名。任务的签名可用于确定任务是否需要运行。由于任务输入的变化会触发任务的运行，因此 BitBake 需要检测给定任务的所有输入。对于 shell 任务来说，这一点相当容易，因为 BitBake 会为每个任务生成一个 "运行 "shell 脚本，而且还可以创建一个校验和，让你对任务的数据何时发生变化有一个很好的了解。
+
+使问题更加复杂的是，有些东西不应包含在校验和中。首先是特定任务的实际具体构建路径--工作目录。工作目录是否改变并不重要，因为它不应影响目标软件包的输出。排除工作目录的简单方法是将其设置为某个固定值，然后为 "运行 "脚本创建校验和。BitBake 则更进一步，使用 [BB_BASEHASH_IGNORE_VARS](#BB_BASEHASH_IGNORE_VARS) 变量来定义生成签名时不应该包含的变量列表。
+
+另一个问题是 "运行 "脚本中包含的函数可能会被调用，也可能不会被调用。增量构建解决方案中包含的代码可以找出 shell 函数之间的依赖关系。这些代码用于将 "运行 "脚本剪裁到最小集合，从而缓解了这一问题，并使 "运行 "脚本的可读性大大提高。
+
+到目前为止，我们已经有了 shell 脚本的解决方案。那么 Python 任务呢？尽管这些任务更加困难，但同样的方法也适用。程序需要弄清楚 Python 函数访问了哪些变量，调用了哪些函数。同样，增量构建解决方案包含的代码会首先找出变量和函数的依赖关系，然后为作为任务输入的数据创建校验和。
+
+与工作目录的情况一样，在某些情况下依赖关系也会被忽略。在这种情况下，你可以使用类似下面的行文来指示编译过程忽略依赖关系：
+
+```bash
+PACKAGE_ARCHS[vardepsexclude] = "MACHINE"
+```
+
+此示例确保 PACKAGE_ARCHS 变量不依赖于 MACHINE 的值，即使它引用了 MACHINE。
+
+同样，在某些情况下，我们需要添加 BitBake 无法找到的依赖项。您可以使用类似下面这样的行文来实现这一目的：
+
+```bash
+PACKAGE_ARCHS[vardeps] = "MACHINE"
+```
+
+此示例明确添加了 MACHINE 变量作为 PACKAGE_ARCHS 的依赖关系。
+
+例如，在使用内联 Python 的情况下，BitBake 无法找出依赖关系。在调试模式下运行时（即使用 -DDD），BitBake 会在发现无法找出依赖关系的内容时产生输出。
+
+到目前为止，本节的讨论仅限于任务的直接输入。基于直接输入的信息在代码中被称为 "basehash"。不过，任务的间接输入（即已构建并存在于构建目录中的内容）问题仍然存在。特定任务的校验和（或签名）需要添加该特定任务所依赖的所有任务的哈希值。选择添加哪些依赖关系是一项策略决策。不过，这样做的结果是生成一个主校验和，它结合了基哈希值和任务依赖项的哈希值。
+
+在代码层面，有多种方法可以影响基础哈希值和从属任务哈希值。在 BitBake 配置文件中，我们可以为 BitBake 提供一些额外信息，帮助它构建基础哈希值。下面的语句会有效地生成一个全局变量依赖性排除列表，即从不包含在任何校验和中的变量。本示例使用 OpenEmbedded 中的变量来说明这一概念：
+
+```bash
+BB_BASEHASH_IGNORE_VARS ?= "TMPDIR FILE PATH PWD BB_TASKHASH BBPATH DL_DIR \
+    SSTATE_DIR THISDIR FILESEXTRAPATHS FILE_DIRNAME HOME LOGNAME SHELL \
+    USER FILESPATH STAGING_DIR_HOST STAGING_DIR_TARGET COREBASE PRSERV_HOST \
+    PRSERV_DUMPDIR PRSERV_DUMPFILE PRSERV_LOCKDOWN PARALLEL_MAKE \
+    CCACHE_DIR EXTERNAL_TOOLCHAIN CCACHE CCACHE_DISABLE LICENSE_PATH SDKPKGSUFFIX"
+```
+
+上例排除了工作目录，它是 TMPDIR 的一部分。
+
+决定通过依赖关系链包含哪些依赖任务哈希值的规则更为复杂，通常使用 Python 函数来实现。meta/lib/oe/sstatesig.py 中的代码展示了这方面的两个示例，还说明了如何根据需要在系统中插入自己的策略。该文件定义了 OpenEmbedded-Core 使用的基本签名生成器："OEBasicHash"。默认情况下，BitBake 会启用一个虚拟的 "noop "签名处理程序。这意味着其行为与以前的版本相比没有变化。通过 bitbake.conf 文件中的设置，OE-Core 默认使用 "OEBasicHash "签名处理程序：
+
+```bash
+BB_SIGNATURE_HANDLER ?= "OEBasicHash"
+```
+
+"OEBasicHash" [BB_SIGNATURE_HANDLER](#BB_SIGNATURE_HANDLER) 的主要功能是将任务哈希值添加到戳记文件中。有了它，任何元数据变化都会改变任务哈希值，自动导致任务再次运行。这样就不需要修改 PR 值，元数据的变化也会自动波及整个构建过程。
+
+值得注意的是，签名生成器的最终结果是为构建提供一些依赖和散列信息。这些信息包括:
+
+- BB_BASEHASH_task-taskname: 配方中每个任务的基本哈希值。
+
+
+- BB_BASEHASH_filename:taskname: 每个从属任务的基本哈希值。
+
+
+- [BB_TASKHASH](#BB_TASKHASH): 当前运行任务的哈希值。
+
+值得注意的是，BitBake 的"-S "选项可以调试 BitBake 对签名的处理。传递给 -S 的选项允许使用不同的调试模式，可以使用 BitBake 自己的调试函数，也可以使用元数据/签名处理程序本身定义的调试函数。最简单的参数是 "none"（无），它会将一组签名信息写入与指定目标相对应的 STAMPS_DIR。另一个当前可用的参数是 "printdiff"，它会导致 BitBake 尝试建立最接近的签名匹配（例如在 sstate 缓存中），然后在匹配的签名上运行 bitbake-diffsigs，以确定这两个戳记树分歧的戳记和 delta。
+
+**备注**：BitBake 的未来版本很可能会提供通过附加"-S "参数触发的其他签名处理程序。
+
+有关校验和元数据的更多信息，请参阅[任务校验和 Setscene](#3.12 任务校验和 Setscene) 部分。
 
 
 
@@ -568,7 +676,7 @@ INHERIT += "autotools pkgconfig"
 
 
 
-## 3.6 任务
+## 3.6 Tasks 任务
 
 ### 3.6.3 向构建任务环境传递信息
 
@@ -602,6 +710,127 @@ bar = origenv.getVar("BAR", False)
 ```
 
 上例从原始执行环境返回 BAR。
+
+## 3.10 Dependencies 依赖关系
+
+为了实现高效的并行处理，BitBake 在任务级别处理依赖关系。依赖关系既可能存在于单个配方中的任务之间，也可能存在于不同配方中的任务之间。下面分别举例说明：
+
+- 对于单个配方中的任务，配方的 do_configure 任务可能需要在 do_compile 任务运行前完成。
+
+
+- 对于不同配方中的任务，一个配方的 do_configure 任务可能需要另一个配方的 do_populate_sysroot 任务先完成，以便另一个配方提供的库和头文件可用。
+
+本节将介绍几种声明依赖关系的方法。请记住，尽管声明依赖关系的方式不同，但它们都只是任务之间的依赖关系。
+
+
+
+### 3.10.1 .bb 文件内部的依赖关系
+
+BitBake 使用 addtask 指令管理指定配方文件内部的依赖关系。您可以使用 addtask 指令来指示某个任务何时依赖于其他任务，或者其他任务何时依赖于该配方。下面是一个示例：
+
+```bash
+addtask printdate after do_fetch before do_build
+```
+
+在本例中，do_printdate 任务依赖于 do_fetch 任务的完成，而 do_build 任务依赖于 do_printdate 任务的完成。
+
+**备注**：要运行一项任务，它必须直接或间接依赖于其他计划运行的任务。下面是一些示例：
+
+- do_configure 之前的 addtask mytask 指令会使 do_mytask 在 do_configure 运行之前运行。请注意，只有当 do_mytask 的输入校验和在上次运行后发生变化时，它才会继续运行。do_mytask 的[输入校验和](#2.8 Checksums (Signatures) 校验和（签名）)发生变化也会间接导致 do_configure 运行。
+
+- do_configure 后的 addtask mytask 指令本身不会导致 do_mytask 运行：
+
+    ```bash
+    bitbake recipe -c mytask
+    ```
+
+    将 do_mytask 声明为其他计划运行的任务的依赖项，也会导致该任务运行。无论如何，该任务都会在 do_configure 之后运行。
+
+### 3.10.2 构建依赖关系
+
+BitBake 使用 [DEPENDS](#DEPENDS) 变量来管理构建时间依赖关系。任务的 [deptask] 变量标志着 [DEPENDS](#DEPENDS) 中列出的每个项目的任务必须在该任务执行前完成。下面是一个例子：
+
+```bash
+do_configure[deptask] = "do_populate_sysroot"
+```
+
+在本例中，[DEPENDS](#DEPENDS) 中每个项目的 do_populate_sysroot 任务必须在 do_configure 执行之前完成。
+
+### 3.10.3 运行时依赖项
+
+BitBake 使用 [PACKAGES](#PACKAGES)、[RDEPENDS](#RDEPENDS) 和 [RRECOMMENDS](#RRECOMMENDS) 变量来管理运行时依赖关系。
+
+[PACKAGES](#PACKAGES) 变量列出了运行时软件包。每个软件包都可以有 [RDEPENDS](#RDEPENDS) 和 [RRECOMMENDS](#RRECOMMENDS) 运行时依赖关系。任务的 [rdeptask] 标志用于标示每个运行时依赖项的任务，该任务必须在执行前完成。
+
+```bash
+do_package_qa[rdeptask] = "do_packagedata"
+```
+
+在前面的例子中，[RDEPENDS](#RDEPENDS) 中每个项目的 do_packagedata 任务必须在 do_package_qa 执行之前完成。虽然 [RDEPENDS](#RDEPENDS) 包含运行时依赖关系命名空间中的条目，但 BitBake 知道如何将它们映射回构建时依赖关系命名空间，而任务就是在构建时依赖关系命名空间中定义的。
+
+### 3.10.4 递归依赖关系
+
+BitBake 使用 [recrdeptask] 标记来管理递归任务依赖关系。BitBake 会查看当前配方的构建时和运行时依赖关系，查看任务的任务间依赖关系，然后为列出的任务添加依赖关系。一旦 BitBake 完成了这些工作，它就会递归地查看这些任务的依赖关系。递归过程一直持续到发现并添加所有依赖关系为止。
+
+[recrdeptask] 标志最常用于需要等待某些任务 "全局 "完成的高级配方中。例如，image.bbclass 有以下内容：
+
+```bash
+do_rootfs[recrdeptask] += "do_packagedata"
+```
+
+该语句表示，在 do_rootfs 任务运行之前，必须先运行当前配方的 do_packagedata 任务，以及从映像配方可到达的所有配方（通过依赖关系）。
+
+BitBake 允许任务通过在任务列表中引用自身来递归依赖于自身：
+
+```bash
+do_a[recrdeptask] = "do_a do_b"
+```
+
+与之前的方式相同，这意味着当前配方的 do_a 和 do_b 任务以及该配方可访问（通过依赖关系）的所有配方必须在 do_a 任务运行前运行。在这种情况下，BitBake 将忽略当前配方的 do_a 任务循环依赖关系。
+
+### 3.10.5 任务间的依赖关系
+
+BitBake 以更通用的形式使用 [depends] 标志来管理任务间的依赖关系。这种更通用的形式允许对特定任务进行相互依赖检查，而不是对 [DEPENDS](#DEPENDS) 中的数据进行检查。下面是一个例子：
+
+```bash
+do_patch[depends] = "quilt-native:do_populate_sysroot"
+```
+
+在本例中，目标 quilt-native 的 do_populate_sysroot 任务必须在 do_patch 任务执行前完成。
+
+[rdepends]标志的作用与此类似，但它使用的是运行时命名空间中的目标，而不是编译时依赖命名空间中的目标。
+
+
+
+## 3.12 任务校验和 Setscene
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 5 变量词汇表
 
@@ -654,6 +883,32 @@ RDEPENDS:${PN} = "foo (>= 1.2)"
 ```
 
 有关联编时依赖关系的信息，请参阅 [DEPENDS](#DEPENDS) 变量。
+
+## RRECOMMENDS
+
+可扩展正在联编的软件包可用性的软件包列表。正在编译的软件包并不依赖于此软件包列表才能成功编译，但需要它们来扩展可用性。要指定软件包的运行时依赖关系，请参阅 [RDEPENDS](#RDEPENDS) 变量。
+
+BitBake 支持指定版本化推荐。虽然语法因打包格式而异，但 BitBake 隐藏了这些差异。以下是使用 [RRECOMMENDS](#RRECOMMENDS) 变量指定版本的一般语法：
+
+```bash
+RRECOMMENDS:${PN} = "package (operator version)"
+```
+
+对于操作员，您可以指定以下内容：
+
+```bash
+=
+<
+>
+<=
+>=
+```
+
+例如，下面的代码将依赖版本为 1.2 或更高的软件包 foo：
+
+```bash
+RDEPENDS:${PN} = "foo (>= 1.2)"
+```
 
 ## BBPATH
 
@@ -717,6 +972,10 @@ BitBake 在同一时间应并行运行的最大任务数。如果您的主机开
 
 食谱的修订。
 
+## PV
+
+食谱的版本。
+
 ## BB_HASHCONFIG_IGNORE_VARS
 
 列出从基础配置校验中排除的变量，用于确定缓存是否可以重复使用。
@@ -738,3 +997,95 @@ PROVIDES += "libpostproc"
 [PROVIDES](#PROVIDES) 机制除了提供备用名称的配方外，还可用于实现虚拟目标。虚拟目标是与某些特定功能（如 Linux 内核）相对应的名称。提供相关功能的食谱会在 [PROVIDES](#PROVIDES) 中列出虚拟目标。依赖于相关功能的食谱可以在 [DEPENDS](#DEPENDS) 中包含虚拟目标，以便于选择提供者。
 
 通常，虚拟目标的名称形式为 "virtual/function"（如 "virtual/kernel"）。斜线只是名称的一部分，在语法上没有任何意义。
+
+## PREFERRED_PROVIDER
+
+当多个配方提供相同项目时，决定优先选择哪个配方。该变量的后缀应始终是所提供项目的名称，并且应将其设置为要优先考虑的配方的 [PN](#PN)。举例如下：
+
+```bash
+PREFERRED_PROVIDER_virtual/kernel ?= "linux-yocto"
+PREFERRED_PROVIDER_virtual/xserver = "xserver-xf86"
+PREFERRED_PROVIDER_virtual/libgl ?= "mesa"
+```
+
+## PREFERRED_PROVIDERS
+
+确定在多个配方提供相同项目的情况下，应优先选择哪个配方。在功能上，[PREFERRED_PROVIDERS](#PREFERRED_PROVIDERS) 与 [PREFERRED_PROVIDER](#PREFERRED_PROVIDERS) 相同。不过，[PREFERRED_PROVIDERS](#PREFERRED_PROVIDERS) 变量可以让您使用以下形式定义多种情况下的首选项：
+
+```bash
+PREFERRED_PROVIDERS = "xxx:yyy aaa:bbb ..."
+```
+
+该格式可方便地替代以下格式：
+
+```bash
+PREFERRED_PROVIDER_xxx = "yyy"
+PREFERRED_PROVIDER_aaa = "bbb"
+```
+
+## PREFERRED_VERSION
+
+如果一个配方有多个版本，该变量将决定优先选择哪个版本。您必须在该变量后缀上您要选择的 [PN](#PN)，并相应设置 [PV](#PV) 为优先级。
+
+[PREFERRED_VERSION](#PREFERRED_VERSION) 变量通过"%"字符支持有限的通配符使用。您可以使用该字符匹配任意数量的字符，这在指定包含可能更改的长版本号的版本时非常有用。下面是两个例子：
+
+```bash
+PREFERRED_VERSION_python = "2.7.3"
+PREFERRED_VERSION_linux-yocto = "4.12%"
+```
+
+**重要**："%" 字符的使用受到限制，只能在字符串的末尾使用。不能在字符串的其他位置使用通配符。
+
+如果指定版本的配方不可用，系统将显示警告信息。如果希望显示错误信息，请参阅 [REQUIRED_VERSION](#REQUIRED_VERSION)。
+
+## REQUIRED_VERSION
+
+如果配方有多个版本，该变量将决定优先选择哪个版本。[REQUIRED_VERSION](#REQUIRED_VERSION) 的工作方式与 [PREFERRED_VERSION](#PREFERRED_VERSION) 完全相同，但如果指定的版本不可用，则会显示错误信息并立即导致编译失败。
+
+如果同一配方同时设置了 [REQUIRED_VERSION](#REQUIRED_VERSION) 和  [PREFERRED_VERSION](#PREFERRED_VERSION)，则使用 [REQUIRED_VERSION](#REQUIRED_VERSION) 值。
+
+## DEFAULT_PREFERENCE
+
+指定配方选择优先级的弱偏差。
+
+该变量最常见的用法是在软件开发版本的配方中将其设置为"-1"。在没有使用 PREFERRED_VERSION 构建开发版本的情况下，使用该变量会导致默认构建稳定版本的配方。
+
+**备注**：[DEFAULT_PREFERENCE](#DEFAULT_PREFERENCE) 提供的偏置是弱偏置，如果包含相同配方不同版本的两个层之间的变量不同，该偏置会被 [BBFILE_PRIORITY](#BBFILE_PRIORITY) 覆盖。
+
+## BBFILE_PRIORITY
+
+为各层中的配方文件指定优先级。
+
+当同一配方出现在多个图层中时，该变量非常有用。设置该变量后，您就可以根据包含相同配方的其他层来确定一个层的优先级，从而有效控制多个层的优先级。无论配方的版本（[PV](#PV) 变量）如何，通过该变量确定的优先级都是有效的。例如，一个层的配方 [PV](#PV) 值较高，但 [BBFILE_PRIORITY](#BBFILE_PRIORITY) 设置为较低优先级，该层的优先级仍然较低。
+
+[BBFILE_PRIORITY](#BBFILE_PRIORITY) 变量的值越大，优先级越高。例如，值 6 的优先级高于值 5。如果没有指定，[BBFILE_PRIORITY](#BBFILE_PRIORITY) 变量将根据层依赖关系来设置（更多信息请参阅 [LAYERDEPENDS](#LAYERDEPENDS) 变量）。对于没有依赖关系的层，如果未指定，默认优先级为已定义的最低优先级 + 1（如果未定义优先级，则为 1）。
+
+## LAYERDEPENDS
+
+列出该配方所依赖的图层，以空格分隔。您也可以在层名末尾加上冒号，为依赖关系指定特定的层版本（例如，"anotherlayer:3 "将与本例中的 [LAYERVERSION](#LAYERVERSION)_anotherlayer 进行比较）。如果缺少任何依赖项或版本号不完全匹配（如果指定），BitBake 将产生错误。
+
+该变量在 conf/layer.conf 文件中使用。您还必须使用特定层的名称作为变量的后缀（例如 LAYERDEPENDS_mylayer）。
+
+## LAYERVERSION
+
+以单个数字形式指定图层的版本。您可以在另一个图层的 [LAYERDEPENDS](#LAYERDEPENDS) 中使用该变量，以便依赖于该图层的特定版本。
+
+您可以在 conf/layer.conf 文件中使用此变量。您还必须使用特定层的名称作为变量的后缀（如 LAYERDEPENDS_mylayer）。
+
+## PACKAGES
+
+配方创建的软件包列表。
+
+## BB_BASEHASH_IGNORE_VARS
+
+列出不包括在校验和依赖性数据中的变量。因此，被排除在外的变量可以在不影响校验和机制的情况下进行更改。一个常见的例子就是编译路径变量。BitBake 的输出不应（通常也不会）依赖于联编的目录。
+
+## BB_SIGNATURE_HANDLER
+
+定义 BitBake 使用的签名处理程序的名称。签名处理程序定义了创建和处理印章文件的方式、签名是否和如何纳入印章，以及签名本身的生成方式。
+
+在全局命名空间中注入一个从 SignatureGenerator 类派生的类，即可添加新的签名处理程序。
+
+## BB_TASKHASH
+
+在执行中的任务中，该变量保存当前启用的签名生成器返回的任务哈希值。
