@@ -66,6 +66,20 @@ MACHINE ?= "edgerouter"
 
 备注：在配置中添加额外的电路板支持包 (BSP) 层可为 [MACHINE](#MACHINE) 增加新的可能设置。
 
+## SRC_URI
+
+有关该变量的初始描述，请参阅 BitBake 手册：SRC_URI。
+
+OpenEmbedded 和 Yocto 项目增加了以下功能。
+
+有标准选项和特定配方选项。下面是标准选项：
+
+apply - 是否应用补丁。默认操作是打补丁。
+
+striplevel - 应用补丁时要使用的级别。默认级别为 1。
+
+patchdir - 指定应用补丁的目录。默认值为 ${S}。
+
 ## MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS
 
 建议安装的特定机器软件包列表，作为正在构建的映像的一部分。构建过程并不依赖于这些软件包的存在。不过，由于这是一个 "机器必备" 变量，因此软件包列表对于机器启动是必不可少的。此变量会影响基于 packagegroup-core-boot 的镜像，包括 core-image-minimal 镜像。
@@ -104,3 +118,13 @@ BBLAYERS = " \
 ```
 
 该示例启用了四个层，其中一个是用户自定义层，名为 meta-mykernel。
+
+## FILESPATH
+
+OpenEmbedded 构建系统搜索补丁和文件时使用的默认目录集。
+
+在编译过程中，BitBake 会按指定顺序搜索 [FILESPATH](#FILESPATH) 中的每个目录，以查找配方 SRC_URI 语句中每个 file:// URI 指定的文件和补丁。
+
+## FILESEXTRAPATHS
+
+扩展 OpenEmbedded 构建系统在处理配方和附加文件时查找文件和补丁时使用的搜索路径。BitBake 处理配方时使用的默认目录最初由 FILESPATH 变量定义。你可以使用 FILESEXTRAPATHS 来扩展 FILESPATH 变量。

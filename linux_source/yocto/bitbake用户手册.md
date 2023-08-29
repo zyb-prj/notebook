@@ -1336,7 +1336,11 @@ bitbake-dumpsigs
 
 
 
+# 4_文件下载支持
 
+## 4-3_Fetchers
+
+如前所述，URL 前缀决定了 BitBake 使用哪个取件子模块。每个子模块可以支持不同的 URL 参数，下文将对此进行介绍。
 
 
 
@@ -1670,3 +1674,91 @@ PREFERRED_VERSION_linux-yocto = "4.12%"
 ## TOPDIR
 
 指向构建目录。BitBake 会自动设置此变量。
+
+## SRCREV
+
+用于构建软件包的源代码的修订版本。此变量仅适用于 Subversion、Git、Mercurial 和 Bazaar。如果你想构建一个固定的修订版本，又想避免每次 BitBake 解析你的配方时都在远程版本库中执行查询，你应该指定一个完整修订版本标识符的 [SRCREV](#SRCREV)，而不仅仅是一个标签。
+
+## SRC_URI
+
+源文件列表 - 本地或远程。这个变量告诉 BitBake 在编译时要提取哪些文件，以及如何提取。例如，如果配方或附加文件需要从互联网上获取一个 tar 包，配方或附加文件就会使用 [SRC_URI](#SRC_URI) 条目指定该 tar 包。另一方面，如果配方或附加文件需要获取一个压缩包、应用两个补丁并包含一个自定义文件，则配方或附加文件需要一个 [SRC_URI](#SRC_URI) 变量来指定所有这些来源。
+
+下面的列表解释了可用的 URI 协议。URI 协议高度依赖于特定的 BitBake Fetcher 子模块。根据 BitBake 使用的撷取器，会使用不同的 URL 参数。有关所支持的撷取器的详细信息，请参阅 [Fetchers](#4-3_Fetchers) 部分。
+
+- az://：使用 HTTPS 从 Azure 存储账户获取文件。
+
+
+- bzr://：从 Bazaar 版本控制库中获取文件。
+
+
+- ccrc://：从 ClearCase 资源库抓取文件。
+
+
+- cvs://：从 CVS 修订控制版本库中获取文件。
+
+
+- file://：从本地计算机获取文件，通常是随元数据一起提供的文件。该路径与 FILESPATH 变量相对。因此，编译系统会按顺序从以下目录中搜索文件，这些目录被假定为配方文件（.bb）或附加文件（.bbappend）所在目录的子目录：
+
+    - `${BPN}`：基本配方名称，不含任何特殊后缀或版本号。
+
+    - `${BP} - ${BPN}-${PV}`：基本配方名称和版本，但不含任何特殊软件包名称后缀。
+
+    - files：目录中的文件，命名为 files，与配方或附加文件并列。
+
+
+- ftp://：使用 FTP 从互联网获取文件。
+
+
+- git://：从 Git 版本控制库中获取文件。
+
+
+- gitsm://：从 Git 版本控制仓库获取子模块。
+
+
+- hg://：从 Mercurial (hg) 版本控制库中获取文件。
+
+
+- http://：使用 HTTP 从互联网获取文件。
+
+
+- https://：使用 HTTPS 从互联网提取文件。
+
+
+- npm://：从注册表中获取 JavaScript 模块。
+
+
+- osc://：从 OSC（OpenSUSE 构建服务）版本控制库中获取文件。
+
+
+- p4://:从 Perforce (p4) 版本控制资源库获取文件。
+
+
+- repo://：从 repo (Git) 版本库中获取文件。
+
+
+- ssh://：从安全 shell 抓取文件。
+
+
+- svn://：从 Subversion (svn) 版本控制库中获取文件。
+
+这里还有一些值得一提的选择：
+
+- downloadfilename：指定存储下载文件时使用的文件名。
+
+- name：在 [SRC_URI](#SRC_URI) 中指定多个文件或 git 仓库时，指定用于与 [SRC_URI](#SRC_URI) 校验和或 [SRCREV](#SRCREV) 关联的名称。例如
+
+    ```bash
+    SRC_URI = "git://example.com/foo.git;branch=main;name=first \
+               git://example.com/bar.git;branch=main;name=second \
+               http://example.com/file.tar.gz;name=third"
+    
+    SRCREV_first = "f1d2d2f924e986ac86fdf7b36c94bcdf32beec15"
+    SRCREV_second = "e242ed3bffccdf271b7fbaf34ed72d089537b42f"
+    SRC_URI[third.sha256sum] = "13550350a8681c84c861aac2e5b440161c2b33a3e4f302ac680ca5b686de48de"
+    ```
+
+- subdir：将文件（或提取其内容）放入指定的子目录。该选项适用于不常见的压缩包或其他归档文件，因为它们的文件并不在归档文件的子目录中。
+
+- subpath：在使用 Git fetcher 时，将签出限制在树的特定子路径上。
+
+- unpack：如果文件是存档文件，则控制是否解压缩。默认操作是解压文件。
