@@ -2,7 +2,7 @@
 
 ## 2.4-克隆和签出分支
 
-### 2.4.1-克隆poky仓库
+### 2_4_1-克隆poky仓库
 
 按照以下步骤创建本地版本的上游 [Poky](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#poky) Git 仓库。
 
@@ -35,7 +35,7 @@ Checking connectivity... done.
 
 #### 1st-切换到Poky目录
 
-如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#2.4.1-克隆poky仓库)" 部分。
+如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#2_4_1-克隆poky仓库)" 部分。
 
 #### 2nd-确定现有分支名称
 
