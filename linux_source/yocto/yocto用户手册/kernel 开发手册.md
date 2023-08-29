@@ -155,7 +155,7 @@ NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun 
 
 #### 1st 初始化 BitBake 环境
 
-在使用 BitBake 进行任何操作之前，你需要通过获取构建环境脚本（即 [oe-init-build-env](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#4110-oe-init-build-env)）来初始化 BitBake 的构建环境。另外，在本例中，请确保你为 poky 签出的本地分支是 Yocto 项目的 Mickledore 分支。如果您需要签出 Mickledore 分支，请参阅《Yocto 项目开发任务手册》中的 "在 Poky 中按分支签出 "部分：
+在使用 BitBake 进行任何操作之前，你需要通过获取构建环境脚本（即 [oe-init-build-env](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#4110-oe-init-build-env)）来初始化 BitBake 的构建环境。另外，在本例中，请确保你为 poky 签出的本地分支是 Yocto 项目的 Mickledore 分支。如果您需要签出 Mickledore 分支，请参阅《Yocto 项目开发任务手册》中的 "在 Poky 中按分支签出" 部分：
 
 ## 2.2 创建和准备图层
 
