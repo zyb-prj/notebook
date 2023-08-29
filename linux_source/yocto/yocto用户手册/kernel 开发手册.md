@@ -8,7 +8,7 @@
 
 ## 1.1 概述
 
-无论你打算如何使用 Yocto 项目，你都有可能使用 Linux 内核。本手册介绍了如何设置你的构建主机以支持内核开发，介绍了内核开发过程，提供了有关 Yocto Linux 内核 [Metadata](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#metadata) 的背景信息，描述了你可以使用内核工具执行的常见任务，向你展示了如何使用 Yocto 项目内的内核元数据，并深入介绍了 Yocto 项目团队如何开发和维护 Yocto Linux 内核 Git 仓库和元数据。
+无论你打算如何使用 Yocto 项目，你都有可能使用 Linux 内核。本手册介绍了如何设置你的构建主机以支持内核开发，介绍了内核开发过程，提供了有关 Yocto Linux 内核 [Metadata](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#metadata) 的背景信息，描述了你可以使用内核工具执行的常见任务，向你展示了如何使用 Yocto 项目内的内核元数据，并深入介绍了 Yocto 项目团队如何开发和维护 Yocto Linux 内核 Git 仓库和元数据。
 
 ## 1.2 内核修改工作流程
 
@@ -22,7 +22,7 @@
 
 ### 1st 设置你的主机开发系统以支持使用 Yocto 项目的开发
 
-请参阅《Yocto 项目开发任务手册》中的 "[设置以使用 Yocto 项目"部分](https://docs.yoctoproject.org/dev-manual/start.html)，了解如何让构建主机为使用 Yocto 项目做好准备。
+请参阅《Yocto 项目开发任务手册》中的 "[设置以使用 Yocto 项目"部分](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-%E8%AE%BE%E7%BD%AE%E4%BD%BF%E7%94%A8-yocto-%E9%A1%B9%E7%9B%AE)，了解如何让构建主机为使用 Yocto 项目做好准备。
 
 ### 2nd 为内核开发设置主机开发系统
 
