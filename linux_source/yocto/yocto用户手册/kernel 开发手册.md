@@ -149,6 +149,14 @@ NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun 
 
 ### 2.1.2 为传统内核开发做好准备
 
+准备使用 Yocto 项目进行传统内核开发的许多步骤与上一节所述相同。不过，你需要建立内核源代码的本地副本，因为你将编辑这些文件。
+
+按照以下步骤，准备使用 Yocto 项目的传统内核开发流程更新内核映像。完成此步骤后，您就可以按照 "[使用传统内核开发流程为内核打补丁](#2.5 使用传统内核开发方法为内核打补丁)" 部分所述，对内核源代码进行修改：
+
+#### 1st 初始化 BitBake 环境
+
+在使用 BitBake 进行任何操作之前，你需要通过获取构建环境脚本（即 oe-init-build-env）来初始化 BitBake 的构建环境。另外，在本例中，请确保你为 poky 签出的本地分支是 Yocto 项目的 Mickledore 分支。如果您需要签出 Mickledore 分支，请参阅《Yocto 项目开发任务手册》中的 "在 Poky 中按分支签出 "部分：
+
 ## 2.2 创建和准备图层
 
 ## 2.3 修改现有配方
@@ -191,9 +199,9 @@ ERROR: Taskhash mismatch 2c793438c2d9f8c3681fd5f7bc819efa versus
        /path/to/esdk/layers/poky/meta/recipes-kernel/linux/linux-yocto_4.10.bb.do_unpack
 ```
 
-### 2.4.2 编辑源文件 按照以下步骤对源文件进行一些简单的修改
+### 2.4.2 编辑源码并执行后续相关操作
 
-##### 1st 切换工作目录
+#### 1st 切换工作目录
 
 在上一步中，输出结果指出了可以找到源文件的位置（例如 poky_sdk/workspace/sources/linux-yocto）。在对 calibrate.c 文件进行编辑之前，请切换到内核源代码所在的位置：
 
