@@ -69,3 +69,18 @@ ${PN}-src ${PN}-dbg ${PN}-staticdev ${PN}-dev ${PN}-doc ${PN}-locale ${PACKAGE_B
 ```
 
 在打包过程中，do_package 任务会遍历 PACKAGES，并使用与每个软件包对应的 FILES 变量将文件分配给软件包。如果一个文件与 PACKAGES 中多个软件包的 FILES 变量匹配，它将被分配到最早（最左）的软件包。
+
+## BBLAYERS
+
+列出要在构建过程中启用的图层。该变量在[构建目录](Build Directory)中的 bblayers.conf 配置文件中定义。下面是一个示例：
+
+```bash
+BBLAYERS = " \
+    /home/scottrif/poky/meta \
+    /home/scottrif/poky/meta-poky \
+    /home/scottrif/poky/meta-yocto-bsp \
+    /home/scottrif/poky/meta-mykernel \
+    "
+```
+
+该示例启用了四个层，其中一个是用户自定义层，名为 meta-mykernel。
