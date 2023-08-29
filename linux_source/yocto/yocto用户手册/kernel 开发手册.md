@@ -34,7 +34,7 @@
 
 ### 3rd 修改内核源代码
 
-修改内核并不总是意味着直接修改源文件。不过，如果您必须这样做，您可以在使用 devtool 时修改 Yocto 的[构建目录](https://docs.yoctoproject.org/ref-manual/terms.html#term-Build-Directory)中的文件。更多信息，请参阅 "[使用 devtool 给内核打补丁](#2.4 使用 devtool 修补内核)"部分。
+修改内核并不总是意味着直接修改源文件。不过，如果您必须这样做，您可以在使用 devtool 时修改 Yocto 的[构建目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#build-directory)中的文件。更多信息，请参阅 "[使用 devtool 给内核打补丁](#2.4 使用 devtool 修补内核)"部分。
 
 如果使用传统的内核开发方式，则需要编辑内核本地 Git 代码库中的源文件。如需了解更多信息，请参阅 "[使用传统内核开发为内核打补丁](#2.5 使用传统内核开发方法为内核打补丁)"部分。
 
@@ -66,7 +66,7 @@
 
 ## 2.1 准备好联编主机以在内核上工作
 
-在进行任何内核开发之前，你需要确保你的构建主机已设置为使用 Yocto 项目。有关如何设置的信息，请参阅《Yocto 项目开发任务手册》中的 "[设置使用 Yocto 项目](https://docs.yoctoproject.org/dev-manual/start.html)" 部分。准备系统的一部分工作是在系统上创建源代码目录 ([poky](https://docs.yoctoproject.org/ref-manual/terms.html#term-Source-Directory)) 的本地 Git 仓库。请按照《Yocto 项目开发任务手册》中 "[克隆 poky 仓库](https://docs.yoctoproject.org/dev-manual/start.html#cloning-the-poky-repository)" 一节的步骤设置源代码目录。
+在进行任何内核开发之前，你需要确保你的构建主机已设置为使用 Yocto 项目。有关如何设置的信息，请参阅《Yocto 项目开发任务手册》中的 "[设置使用 Yocto 项目](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-%E8%AE%BE%E7%BD%AE%E4%BD%BF%E7%94%A8-yocto-%E9%A1%B9%E7%9B%AE)" 部分。准备系统的一部分工作是在系统上创建源代码目录 ([poky](https://www.yoctoproject.org/software-overview/downloads/)) 的本地 Git 仓库。请按照《Yocto 项目开发任务手册》中 "[克隆 poky 仓库](https://docs.yoctoproject.org/dev-manual/start.html#cloning-the-poky-repository)" 一节的步骤设置源代码目录。
 
 备注：请确保您签出了相应的开发分支，或者通过签出特定标签创建了本地分支，以获得所需的 Yocto Project 版本。更多信息，请参阅《Yocto 项目开发任务手册》中的 "[在 Poky 中通过分支签出](https://docs.yoctoproject.org/dev-manual/start.html#checking-out-by-branch-in-poky)" 和 "[在 Poky 中通过标签签出](https://docs.yoctoproject.org/dev-manual/start.html#checking-out-by-tag-in-poky)" 章节。
 
