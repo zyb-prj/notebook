@@ -28,15 +28,15 @@
 
 建议使用 devtool 进行内核开发。或者，你也可以使用 Yocto 项目的传统内核开发方法。无论哪种方法，你都需要采取一些步骤来准备好开发环境。
 
-使用 devtool 需要有一个完整的镜像。有关详细信息，请参阅 "[准备使用 devtool 进行开发](#2.1.1-准备使用devtool进行开发)"部分。
+使用 devtool 需要有一个完整的镜像。有关详细信息，请参阅 "[准备使用 devtool 进行开发](#2-1-1_准备使用-devtool-进行开发)"部分。
 
-使用传统内核开发方法需要在本地 Git 代码库中拥有独立的内核源代码。更多信息，请参阅 "[为传统内核开发做好准备](#2.1.2-为传统内核开发做好准备)"部分。
+使用传统内核开发方法需要在本地 Git 代码库中拥有独立的内核源代码。更多信息，请参阅 "[为传统内核开发做好准备](#2-1-2_为传统内核开发做好准备)"部分。
 
 ### 3rd_修改内核源代码
 
-修改内核并不总是意味着直接修改源文件。不过，如果您必须这样做，您可以在使用 devtool 时修改 Yocto 的[构建目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#build-directory)中的文件。更多信息，请参阅 "[使用 devtool 给内核打补丁](#2.4-使用devtool修补内核)"部分。
+修改内核并不总是意味着直接修改源文件。不过，如果您必须这样做，您可以在使用 devtool 时修改 Yocto 的[构建目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#build-directory)中的文件。更多信息，请参阅 "[使用 devtool 给内核打补丁](#2-4_使用-devtool-为内核打补丁)"部分。
 
-如果使用传统的内核开发方式，则需要编辑内核本地 Git 代码库中的源文件。如需了解更多信息，请参阅 "[使用传统内核开发为内核打补丁](#2.5-使用传统内核开发方法为内核打补丁)"部分。
+如果使用传统的内核开发方式，则需要编辑内核本地 Git 代码库中的源文件。如需了解更多信息，请参阅 "[使用传统内核开发为内核打补丁](#2-5_使用传统内核开发方法为内核打补丁)"部分。
 
 ### 4th_根据需要更改内核配置
 
@@ -66,15 +66,15 @@
 
 ## 2-1_准备好联编主机以在内核上工作
 
-在进行任何内核开发之前，你需要确保你的构建主机已设置为使用 Yocto 项目。有关如何设置的信息，请参阅《Yocto 项目开发任务手册》中的 "[设置使用 Yocto 项目](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-%E8%AE%BE%E7%BD%AE%E4%BD%BF%E7%94%A8-yocto-%E9%A1%B9%E7%9B%AE)" 部分。准备系统的一部分工作是在系统上创建源代码目录 ([poky](https://www.yoctoproject.org/software-overview/downloads/)) 的本地 Git 仓库。请按照《Yocto 项目开发任务手册》中 "[克隆 poky 仓库](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#241-%E5%85%8B%E9%9A%86-poky-%E4%BB%93%E5%BA%93)" 一节的步骤设置源代码目录。
+在进行任何内核开发之前，你需要确保你的构建主机已设置为使用 Yocto 项目。有关如何设置的信息，请参阅《Yocto 项目开发任务手册》中的 "[设置使用 Yocto 项目](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-%E8%AE%BE%E7%BD%AE%E4%BD%BF%E7%94%A8-yocto-%E9%A1%B9%E7%9B%AE)" 部分。准备系统的一部分工作是在系统上创建源代码目录 ([poky](https://www.yoctoproject.org/software-overview/downloads/)) 的本地 Git 仓库。请按照《Yocto 项目开发任务手册》中 "[克隆 poky 仓库](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-4-1_%E5%85%8B%E9%9A%86-poky-%E4%BB%93%E5%BA%93)" 一节的步骤设置源代码目录。
 
-备注：请确保您签出了相应的开发分支，或者通过签出特定标签创建了本地分支，以获得所需的 Yocto Project 版本。更多信息，请参阅《Yocto 项目开发任务手册》中的 "[在 Poky 中按分支签出](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#242-%E5%9C%A8-poky-%E4%B8%AD%E6%8C%89%E5%88%86%E6%94%AF%E7%AD%BE%E5%87%BA)" 和 "[在 Poky 中按标签签出](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#243-%E5%9C%A8-poky-%E4%B8%AD%E6%8C%89%E6%A0%87%E7%AD%BE%E7%AD%BE%E5%87%BA)" 章节。
+备注：请确保您签出了相应的开发分支，或者通过签出特定标签创建了本地分支，以获得所需的 Yocto Project 版本。更多信息，请参阅《Yocto 项目开发任务手册》中的 "[在 Poky 中按分支签出](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-4-2_%E5%9C%A8-poky-%E4%B8%AD%E6%8C%89%E5%88%86%E6%94%AF%E7%AD%BE%E5%87%BA)" 和 "[在 Poky 中按标签签出](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-4-3_%E5%9C%A8-poky-%E4%B8%AD%E6%8C%89%E6%A0%87%E7%AD%BE%E7%AD%BE%E5%87%BA)" 章节。
 
 内核开发最好使用 devtool，而不是传统的内核工作流程方法。本节其余部分将提供这两种情况的信息。
 
 ### 2-1-1_准备使用-devtool-进行开发
 
-按照以下步骤准备使用 devtool 更新内核映像。完成此步骤后，您将获得干净的内核映像，并准备好按照 "[使用 devtool 给内核打补丁](#2.4-使用devtool为内核打补丁)" 部分所述进行修改：
+按照以下步骤准备使用 devtool 更新内核映像。完成此步骤后，您将获得干净的内核映像，并准备好按照 "[使用 devtool 给内核打补丁](#2-4_使用-devtool-为内核打补丁)" 部分所述进行修改：
 
 #### 1st_初始化-BitBake-环境
 
@@ -90,7 +90,7 @@ source poky/oe-init-build-env
 
 默认情况下，[MACHINE](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine) 变量被设置为 "qemux86-64"，如果你是在 64 位模式下为 QEMU 模拟器构建系统，那么这个设置就没问题。但如果不是，则需要在[构建目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#build-directory)（即本例中的 poky/build）中的 conf/local.conf 文件中适当设置 [MACHINE](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine) 变量。
 
-此外，由于您正准备处理内核映像，因此需要设置 [MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine_essential_extra_rrecommends) 变量，以包含内核模块。
+此外，由于您正准备处理内核映像，因此需要设置 [MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine_essential_extra_rrecommends) 变量，以包含内核模块。
 
 在本例中，我们希望为 qemux86 构建系统，因此必须将 MACHINE 变量设置为 "qemux86"，并添加 "kernel-modules"。如前所述，我们可以通过追加到 conf/local.conf 来实现这一点：
 
@@ -111,11 +111,11 @@ Add your new layer with 'bitbake-layers add-layer ../../meta-mylayer'
 $
 ```
 
-备注：有关使用普通图层和 BSP 图层的背景信息，请分别参阅 Yocto Project 开发任务手册 中的 "[理解并创建图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#3-%E7%90%86%E8%A7%A3%E5%B9%B6%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%B1%82)" 一节，以及 Yocto Project Board Support [(BSP) 开发者指南](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md) 中的 "[BSP 图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#1-bsp-%E5%9B%BE%E5%B1%82)" 一节。关于如何使用 bitbake-layers create-layer 命令快速创建图层，请参阅《Yocto 工程开发任务手册》中的 "[使用 bitbake-layers 脚本创建普通图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#38-%E4%BD%BF%E7%94%A8-bitbake-layers-%E8%84%9A%E6%9C%AC%E5%88%9B%E5%BB%BA%E5%B8%B8%E8%A7%84%E5%9B%BE%E5%B1%82)" 一节。
+备注：有关使用普通图层和 BSP 图层的背景信息，请分别参阅 Yocto Project 开发任务手册 中的 "[理解并创建图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#3_%E7%90%86%E8%A7%A3%E5%B9%B6%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%B1%82)" 一节，以及 Yocto Project Board Support [(BSP) 开发者指南](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md) 中的 "[BSP 图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#1-bsp-%E5%9B%BE%E5%B1%82)" 一节。关于如何使用 bitbake-layers create-layer 命令快速创建图层，请参阅《Yocto 工程开发任务手册》中的 "[使用 bitbake-layers 脚本创建常规图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#3-8_%E4%BD%BF%E7%94%A8-bitbake-layers-%E8%84%9A%E6%9C%AC%E5%88%9B%E5%BB%BA%E5%B8%B8%E8%A7%84%E5%9B%BE%E5%B1%82)" 一节。
 
 #### 4th_向-BitBake-构建环境通报您的图层
 
-按照创建图层时的指示，您需要将图层添加到 bblayers.conf 文件中的 [BBLAYERS](#BBLAYERS) 变量中，如下所示：
+按照创建图层时的指示，您需要将图层添加到 bblayers.conf 文件中的 [BBLAYERS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#bblayers) 变量中，如下所示：
 
 ```bash
 $ cd poky/build
@@ -145,17 +145,17 @@ NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun 
 
 如果是为实际硬件而非仿真而构建，可以将映像闪存到 /dev/sdd 上的 USB 记忆棒中，然后启动设备。有关使用 Minnowboard 的示例，请参阅 [TipsAndTricks/KernelDevelopmentWithEsdk Wiki](https://wiki.yoctoproject.org/wiki/TipsAndTricks/KernelDevelopmentWithEsdki) 页面。
 
-至此，你就可以开始修改内核了。更多示例，请参阅 "[使用 devtool 修补内核](#2.4-使用devtool为内核打补丁)" 部分。
+至此，你就可以开始修改内核了。更多示例，请参阅 "[使用 devtool 修补内核](#2-4_使用-devtool-为内核打补丁)" 部分。
 
-### 2.1.2_为传统内核开发做好准备
+### 2-1-2_为传统内核开发做好准备
 
 准备使用 Yocto 项目进行传统内核开发的许多步骤与上一节所述相同。不过，你需要建立内核源代码的本地副本，因为你将编辑这些文件。
 
-按照以下步骤，准备使用 Yocto 项目的传统内核开发流程更新内核映像。完成此步骤后，您就可以按照 "[使用传统内核开发流程为内核打补丁](#2.5-使用传统内核开发方法为内核打补丁)" 部分所述，对内核源代码进行修改：
+按照以下步骤，准备使用 Yocto 项目的传统内核开发流程更新内核映像。完成此步骤后，您就可以按照 "[使用传统内核开发流程为内核打补丁](#2-5_使用传统内核开发方法为内核打补丁)" 部分所述，对内核源代码进行修改：
 
 #### 1st_初始化-BitBake-环境
 
-在使用 BitBake 进行任何操作之前，你需要通过获取构建环境脚本（即 [oe-init-build-env](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#4110-oe-init-build-env)）来初始化 BitBake 的构建环境。另外，在本例中，请确保你为 poky 签出的本地分支是 Yocto 项目的 Mickledore 分支。如果您需要签出 Mickledore 分支，请参阅《Yocto 项目开发任务手册》中的 "在 Poky 中按分支签出" 部分：
+在使用 BitBake 进行任何操作之前，你需要通过获取构建环境脚本（即 [oe-init-build-env](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#4-1-10_oe-init-build-env)）来初始化 BitBake 的构建环境。另外，在本例中，请确保你为 poky 签出的本地分支是 Yocto 项目的 Mickledore 分支。如果您需要签出 Mickledore 分支，请参阅《Yocto 项目开发任务手册》中的 "在 Poky 中按分支签出" 部分：
 
 ## 2-2_创建和准备图层
 
@@ -173,17 +173,17 @@ NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun 
 
 本步骤将向您展示如何使用 devtool 给内核打补丁。
 
-备注：在尝试此步骤之前，请确保您已执行了 "[准备使用 devtool 进行开发](#2.1.1-准备使用devtool进行开发)" 一节中所述的更新内核的准备步骤。
+备注：在尝试此步骤之前，请确保您已执行了 "[准备使用 devtool 进行开发](#2-1-1_准备使用-devtool-进行开发)" 一节中所述的更新内核的准备步骤。
 
 内核补丁包括更改或添加现有内核的配置，更改或添加支持特定硬件功能所需的内核配方，甚至更改源代码本身。
 
-本例通过在内核 calibrate.c 源代码文件中的 printk 语句，在启动时添加一些 QEMU 模拟器控制台输出，从而创建了一个简单的补丁。打上补丁并启动修改后的映像后，增加的信息就会出现在模拟器的控制台上。本例是 "[准备使用 devtool 进行开发](#2.1.1-准备使用devtool进行开发)" 一节中设置过程的延续。
+本例通过在内核 calibrate.c 源代码文件中的 printk 语句，在启动时添加一些 QEMU 模拟器控制台输出，从而创建了一个简单的补丁。打上补丁并启动修改后的映像后，增加的信息就会出现在模拟器的控制台上。本例是 "[准备使用 devtool 进行开发](#2-1-1_准备使用-devtool-进行开发)" 一节中设置过程的延续。
 
 ### 2-4-1_查看内核源文件
 
 首先，你必须使用 devtool 在其工作区签出内核源代码。
 
-备注：有关详细信息，请参阅 "[准备使用 devtool 进行开发](#2.1.1-准备使用devtool进行开发)" 部分中的这一步骤。
+备注：有关详细信息，请参阅 "[准备使用 devtool 进行开发](#2-1-1_准备使用-devtool-进行开发)" 部分中的这一步骤。
 
 使用以下 devtool 命令查看代码：
 
@@ -286,7 +286,7 @@ git commit -m "calibrate: Add printk example"
 devtool finish linux-yocto ~/meta-mylayer
 ```
 
-备注：有关设置该层的信息，请参见 ["准备使用 devtool 进行开发" 部分的步骤 3](#3rd-为补丁创建图层)。
+备注：有关设置该层的信息，请参见 ["准备使用 devtool 进行开发" 部分的步骤 3](#3rd_为补丁创建图层)。
 
 命令完成后，补丁和 .bbappend 文件就会出现在 ~/meta-mylayer/recipes-kernel/linux 目录中。
 
