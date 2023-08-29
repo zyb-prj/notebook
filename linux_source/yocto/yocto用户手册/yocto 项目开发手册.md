@@ -1,8 +1,8 @@
-# 2 设置使用 Yocto 项目
+# Section2 设置使用 Yocto 项目
 
-## 2.4 克隆和签出分支
+## Chapter2.4 克隆和签出分支
 
-### 2.4.1 克隆 poky 仓库
+### No.2.4.1 克隆 poky 仓库
 
 按照以下步骤创建本地版本的上游 [Poky](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#poky) Git 仓库。
 
@@ -25,23 +25,9 @@ Resolving deltas: 100% (323116/323116), done.
 Checking connectivity... done.
 ```
 
-除非你指定了特定的开发分支或标记名，否则 Git 会克隆 "master "分支，从而产生 "master "的最新开发变更快照。关于如何签出特定的开发分支，或如何根据标签名签出本地分支，请分别参阅 "[在 Poky 中按分支签出](#2.4.2 签出 poky 分支)" 和 "[在 Poky 中按标签签出](#2.4.3 在 Poky 中按标签签出)" 章节。
+除非你指定了特定的开发分支或标记名，否则 Git 会克隆 "master "分支，从而产生 "master "的最新开发变更快照。关于如何签出特定的开发分支，或如何根据标签名签出本地分支，请分别参阅 "[在 Poky 中按分支签出](#No.2.4.2 在 Poky 中按分支签出)" 和 "[在 Poky 中按标签签出](#No.2.4.3 在 Poky 中按标签签出)" 章节。
 
-
-
-
-
-
-
-
-
-
-
-"[在 Poky 中按分支签出](4.1.10 oe-init-build-env)" 
-
-[asdasd](#asdasasasdvfvsdds)
-
-### 2.4.2 在 Poky 中按分支签出
+### No.2.4.2 在 Poky 中按分支签出
 
 克隆上游 poky 仓库时，您可以访问其所有开发分支。版本库中的每个开发分支都是唯一的，因为它是从 "主 "分支分叉出来的。要在本地查看和使用某个开发分支的文件，你需要知道该分支的名称，然后专门查看该开发分支。
 
@@ -49,7 +35,7 @@ Checking connectivity... done.
 
 #### 1st 切换到 Poky 目录
 
-如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#2.4.1 克隆 poky 仓库)" 部分。
+如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#No.2.4.1 克隆 poky 仓库)" 部分。
 
 #### 2nd 确定现有分支名称
 
@@ -95,7 +81,7 @@ $ git branch
   * mickledore
 ```
 
-### 2.4.3 在 Poky 中按标签签出
+### No.2.4.3 在 Poky 中按标签签出
 
 与分支类似，上游版本库也使用标签来标记与开发分支中的重要点（即发布点或发布阶段）相关的特定提交。你可能想根据版本库中的这些点建立一个本地分支。除了使用标签名称外，这个过程与按分支名称签出类似。
 
@@ -103,7 +89,7 @@ $ git branch
 
 #### 1st 切换到 Poky 目录
 
-如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#2.4.1 克隆 poky 仓库)" 部分。
+如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#No.2.4.1 克隆 poky 仓库)" 部分。
 
 #### 2nd 获取标签名称
 
@@ -138,7 +124,7 @@ yocto-2.7
 yocto_1.5_M5.rc8
 ```
 
-4th 查看分支
+#### 4th 查看分支
 
 ```bash
 $ git checkout tags/yocto-4.2.999 -b my_yocto_4.2.999
@@ -152,18 +138,13 @@ $ git branch
 
 
 
-# 3 理解并创建图层
+# Section3 理解并创建图层
 
-## 3.8 使用 bitbake-layers 脚本创建常规图层
+## Chapter3.8 使用 bitbake-layers 脚本创建常规图层
 
-# 4 源目录结构
+# Section4 源目录结构
 
-## 4.1 顶级核心组件
+## Chapter4.1 顶级核心组件
 
-### 4.1.10 oe-init-build-env
+### No.4.1.10 oe-init-build-env
 
-
-
-
-
-### asdasasasdvfvsdds
