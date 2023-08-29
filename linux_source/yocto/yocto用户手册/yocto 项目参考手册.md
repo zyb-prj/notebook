@@ -1,6 +1,6 @@
 # 2 Yocto 项目术语
 
-[Build Directory](#Build Directory)
+## Build Directory
 
 该术语指 OpenEmbedded 构建系统用于构建的区域。该区域在源代码目录（即 oe-init-build-env）中的设置环境脚本时创建。TOPDIR 变量指向[构建目录](#Build Directory)。
 
