@@ -258,7 +258,7 @@ NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun 
 使用以下 devtool 命令查看代码：
 
 ```bash
-devtool modify linux-yocto
+$ devtool modify linux-yocto
 ```
 
 备注：在结账操作过程中，有一个错误可能会导致以下错误，您可以放心地忽略这些信息。源代码已正确签出。
@@ -276,7 +276,7 @@ ERROR: Taskhash mismatch 2c793438c2d9f8c3681fd5f7bc819efa versus
 在上一步中，输出结果指出了可以找到源文件的位置（例如 poky_sdk/workspace/sources/linux-yocto）。在对 calibrate.c 文件进行编辑之前，请切换到内核源代码所在的位置：
 
 ```bash
-cd poky_sdk/workspace/sources/linux-yocto
+$ cd poky_sdk/workspace/sources/linux-yocto
 ```
 
 #### 2nd_编辑源文件
@@ -307,7 +307,7 @@ void calibrate_delay(void)
 要构建更新的内核源代码，请使用 devtool：
 
 ```bash
-devtool build linux-yocto
+$ devtool build linux-yocto
 ```
 
 #### 4th_使用新内核创建映像
@@ -315,8 +315,8 @@ devtool build linux-yocto
 使用 devtool build-image 命令创建包含新内核的新镜像：
 
 ```bash
-cd ~
-devtool build-image core-image-minimal
+$ cd ~
+$ devtool build-image core-image-minimal
 ```
 
 备注：如果您最初创建的映像是 Wic 文件，您可以使用另一种方法创建带有更新内核的新映像。有关示例，请参阅 [TipsAndTricks/KernelDevelopmentWithEsdk Wiki](https://wiki.yoctoproject.org/wiki/TipsAndTricks/KernelDevelopmentWithEsdk ) 页面中的步骤。
@@ -342,10 +342,10 @@ dmesg | less
 将工作目录更改为修改 calibrate.c 文件的位置，然后使用这些 Git 命令来分阶段提交修改：
 
 ```bash
-cd poky_sdk/workspace/sources/linux-yocto
-git status
-git add init/calibrate.c
-git commit -m "calibrate: Add printk example"
+$ cd poky_sdk/workspace/sources/linux-yocto
+$ git status
+$ git add init/calibrate.c
+$ git commit -m "calibrate: Add printk example"
 ```
 
 #### 7th_导出补丁并创建附加文件
@@ -353,7 +353,7 @@ git commit -m "calibrate: Add printk example"
 要将提交导出为补丁并创建 .bbappend 文件，请使用以下命令。本示例使用先前建立的名为 meta-mylayer 的层：
 
 ```bash
-devtool finish linux-yocto ~/meta-mylayer
+$ devtool finish linux-yocto ~/meta-mylayer
 ```
 
 备注：有关设置该层的信息，请参见 ["准备使用 devtool 进行开发" 部分的步骤 3](#3rd_为补丁创建图层)。
@@ -365,11 +365,146 @@ devtool finish linux-yocto ~/meta-mylayer
 现在就可以构建包含内核补丁的镜像了。在为运行 BitBake 而设置的终端中，从构建目录执行以下命令：
 
 ```bash
-cd poky/build
-bitbake core-image-minimal
+$ cd poky/build
+$ bitbake core-image-minimal
 ```
 
 ## 2-5_使用传统内核开发方法为内核打补丁
+
+本步骤将向您展示如何使用传统的内核开发方式（即不使用 "[使用 devtool 给内核打补丁](#2-4_使用-devtool-为内核打补丁)"部分中描述的 devtool）给内核打补丁。
+
+备注：在尝试此步骤之前，请确保您已执行了 "[为传统内核开发做好准备](#2-1-2_为传统内核开发做好准备)" 一节中所述的更新内核的准备步骤。
+
+内核补丁包括更改或添加现有内核的配置，更改或添加支持特定硬件功能所需的内核配方，甚至更改源代码本身。
+
+本节中的示例创建了一个简单的补丁，通过内核 calibrate.c 源代码文件中的 printk 语句，在启动时添加一些 QEMU 模拟器控制台输出。打上补丁并启动修改后的映像后，增加的信息就会出现在模拟器的控制台上。该示例是 "[为传统内核开发做好准备](#2-1-2_为传统内核开发做好准备)" 部分中设置步骤的延续。
+
+### 1st_编辑源文件
+
+在这一步之前，你应该已经使用 Git 为你的内核创建了一个本地版本库。假设您已按照 "[为传统内核开发做好准备](#2-1-2_为传统内核开发做好准备)" 一节中的指示创建了版本库，请使用以下命令编辑 calibrate.c 文件：
+
+#### 切换工作目录
+
+您需要在内核 Git 代码库的本地副本中找到源文件。在对 calibrate.c 文件进行编辑之前，请切换到内核源代码所在的位置：
+
+```bash
+$ cd ~/linux-yocto-4.12/init
+```
+
+#### 编辑源码
+
+编辑 calibrate.c 文件，作出以下修改：
+
+```c
+void calibrate_delay(void)
+{
+    unsigned long lpj;
+    static bool printed;
+    int this_cpu = smp_processor_id();
+
+    printk("*************************************\n");
+    printk("*                                   *\n");
+    printk("*        HELLO YOCTO KERNEL         *\n");
+    printk("*                                   *\n");
+    printk("*************************************\n");
+
+    if (per_cpu(cpu_loops_per_jiffy, this_cpu)) {
+          .
+          .
+          .
+```
+
+### 2nd_提交代码变更
+
+使用标准的 Git 命令来阶段化并提交您刚才所做的更改：
+
+```bash
+$ git add calibrate.c
+$ git commit -m "calibrate.c - Added some printk statements"
+```
+
+如果您不分阶段提交更改，OpenEmbedded 编译系统将无法接收更改。
+
+### 3rd_更新-local.conf-文件以指向源文件
+
+```bash
+$ cd poky/build/conf
+```
+
+在 local.conf 中添加以下内容：
+
+```bash
+SRC_URI:pn-linux-yocto = "git:///path-to/linux-yocto-4.12;protocol=file;name=machine;branch=standard/base; \
+                          git:///path-to/yocto-kernel-cache;protocol=file;type=kmeta;name=meta;branch=yocto-4.12;destsuffix=${KMETA}"
+SRCREV_meta:qemux86 = "${AUTOREV}"
+SRCREV_machine:qemux86 = "${AUTOREV}"
+```
+
+备注：请务必将 path-to 替换为本地 Git 仓库的路径名。此外，必须确保指定了正确的分支和机器类型。在本例中，分支是 standard/base，机器是 qemux86。
+
+### 4th_编译镜像
+
+修改了源代码、暂存并提交了修改内容、local.conf 文件指向了内核文件，现在就可以使用 BitBake 来构建镜像了：
+
+```bash
+$ cd poky/build
+$ bitbake core-image-minimal
+```
+
+### 5th_启动镜像
+
+```bash
+$ cd poky/build
+$ runqemu qemux86
+```
+
+### 6th_查看变化
+
+当 QEMU 启动时，你可能会看到你的更改在快速滚动。如果没有，请使用这些命令查看更改：
+
+```bash
+# dmesg | less
+```
+
+当你向下滚动控制台窗口时，应该能看到 printk 语句的部分输出结果。
+
+### 7th_生成补丁文件
+
+一旦确定补丁运行正常，就可以在内核源代码库中生成*.patch 文件：
+
+```bash
+$ cd ~/linux-yocto-4.12/init
+$ git format-patch -1
+0001-calibrate.c-Added-some-printk-statements.patch
+```
+
+### 8th_将补丁文件移至你的图层
+
+为了让后续的编译能拾取补丁，需要将上一步创建的补丁文件移动到图层 meta-mylayer。在本例中，先前创建的图层位于你的主目录中，名为 meta-mylayer。在使用 yocto-create 脚本创建图层时，并没有创建额外的层次结构来支持补丁。在移动补丁文件之前，需要使用以下命令为图层添加附加结构：
+
+```bash
+$ cd ~/meta-mylayer
+$ mkdir recipes-kernel
+$ mkdir recipes-kernel/linux
+$ mkdir recipes-kernel/linux/linux-yocto
+```
+
+在图层中创建此层次结构后，就可以使用以下命令移动补丁文件：
+
+```bash
+$ mv ~/linux-yocto-4.12/init/0001-calibrate.c-Added-some-printk-statements.patch ~/meta-mylayer/recipes-kernel/linux/linux-yocto
+```
+
+### 9th_创建附加文件
+
+最后，您需要创建 linux-yocto_4.12.bbappend 文件，并插入允许 OpenEmbedded 编译系统找到补丁的语句。附加文件需要放在你的层的 recipes-kernel/linux 目录中，文件名必须为 linux-yocto_4.12.bbappend，并包含以下内容：
+
+```bash
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://0001-calibrate.c-Added-some-printk-statements.patch"
+```
+
+FILESEXTRAPATHS 和 SRC_URI 语句可让 OpenEmbedded 编译系统找到补丁文件。
 
 ## 2-6_配置内核
 
