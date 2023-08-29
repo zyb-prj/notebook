@@ -111,7 +111,41 @@ Add your new layer with 'bitbake-layers add-layer ../../meta-mylayer'
 $
 ```
 
-备注：有关使用普通图层和 BSP 图层的背景信息，请分别参阅 Yocto Project 开发任务手册 中的 "[理解并创建图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#3-%E7%90%86%E8%A7%A3%E5%B9%B6%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%B1%82)" 一节，以及 Yocto Project Board Support [(BSP) 开发者指南](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md) 中的 "[BSP 图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#1-bsp-%E5%9B%BE%E5%B1%82)" 一节。关于如何使用 bitbake-layers create-layer 命令快速创建图层，请参阅《Yocto 工程开发任务手册》中的 "使用 bitbake-layers 脚本创建普通图层" 一节。
+备注：有关使用普通图层和 BSP 图层的背景信息，请分别参阅 Yocto Project 开发任务手册 中的 "[理解并创建图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#3-%E7%90%86%E8%A7%A3%E5%B9%B6%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%B1%82)" 一节，以及 Yocto Project Board Support [(BSP) 开发者指南](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md) 中的 "[BSP 图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#1-bsp-%E5%9B%BE%E5%B1%82)" 一节。关于如何使用 bitbake-layers create-layer 命令快速创建图层，请参阅《Yocto 工程开发任务手册》中的 "[使用 bitbake-layers 脚本创建普通图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#38-%E4%BD%BF%E7%94%A8-bitbake-layers-%E8%84%9A%E6%9C%AC%E5%88%9B%E5%BB%BA%E5%B8%B8%E8%A7%84%E5%9B%BE%E5%B1%82)" 一节。
+
+#### 4th 向 BitBake 构建环境通报您的图层
+
+按照创建图层时的指示，您需要将图层添加到 bblayers.conf 文件中的 [BBLAYERS](#BBLAYERS) 变量中，如下所示：
+
+```bash
+$ cd poky/build
+$ bitbake-layers add-layer ../../meta-mylayer
+NOTE: Starting bitbake server...
+$
+```
+
+#### 5th 编译干净的镜像
+
+准备内核工作的最后一步是使用 bitbake 构建初始镜像：
+
+```bash
+$ bitbake core-image-minimal
+Parsing recipes: 100% |##########################################| Time: 0:00:05
+Parsing of 830 .bb files complete (0 cached, 830 parsed). 1299 targets, 47 skipped, 0 masked, 0 errors.
+WARNING: No packages to add, building image core-image-minimal unmodified
+Loading cache: 100% |############################################| Time: 0:00:00
+Loaded 1299 entries from dependency cache.
+NOTE: Resolving any missing task queue dependencies
+Initializing tasks: 100% |#######################################| Time: 0:00:07
+Checking sstate mirror object availability: 100% |###############| Time: 0:00:00
+NOTE: Executing SetScene Tasks
+NOTE: Executing RunQueue Tasks
+NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun and all succeeded.
+```
+
+如果是为实际硬件而非仿真而构建，可以将映像闪存到 /dev/sdd 上的 USB 记忆棒中，然后启动设备。有关使用 Minnowboard 的示例，请参阅 [TipsAndTricks/KernelDevelopmentWithEsdk Wiki](https://wiki.yoctoproject.org/wiki/TipsAndTricks/KernelDevelopmentWithEsdki) 页面。
+
+至此，你就可以开始修改内核了。更多示例，请参阅 "[使用 devtool 修补内核](#2.4 使用 devtool 为内核打补丁)" 部分。
 
 ### 2.1.2 为传统内核开发做好准备
 
@@ -137,11 +171,125 @@ $
 
 本例通过在内核 calibrate.c 源代码文件中的 printk 语句，在启动时添加一些 QEMU 模拟器控制台输出，从而创建了一个简单的补丁。打上补丁并启动修改后的映像后，增加的信息就会出现在模拟器的控制台上。本例是 "[准备使用 devtool 进行开发](#2.1.1 准备使用 devtool 进行开发)" 一节中设置过程的延续。
 
-### 1st 查看内核源文件
+### 2.4.1 查看内核源文件
 
 首先，你必须使用 devtool 在其工作区签出内核源代码。
 
 备注：有关详细信息，请参阅 "[准备使用 devtool 进行开发](#2.1.1 准备使用 devtool 进行开发)" 部分中的这一步骤。
+
+使用以下 devtool 命令查看代码：
+
+```bash
+devtool modify linux-yocto
+```
+
+备注：在结账操作过程中，有一个错误可能会导致以下错误，您可以放心地忽略这些信息。源代码已正确签出。
+
+```bash
+ERROR: Taskhash mismatch 2c793438c2d9f8c3681fd5f7bc819efa versus
+       be3a89ce7c47178880ba7bf6293d7404 for
+       /path/to/esdk/layers/poky/meta/recipes-kernel/linux/linux-yocto_4.10.bb.do_unpack
+```
+
+### 2.4.2 编辑源文件 按照以下步骤对源文件进行一些简单的修改
+
+##### 1st 切换工作目录
+
+在上一步中，输出结果指出了可以找到源文件的位置（例如 poky_sdk/workspace/sources/linux-yocto）。在对 calibrate.c 文件进行编辑之前，请切换到内核源代码所在的位置：
+
+```bash
+cd poky_sdk/workspace/sources/linux-yocto
+```
+
+#### 2nd 编辑源文件
+
+编辑 init/calibrate.c 文件，作出以下修改：
+
+```c
+void calibrate_delay(void)
+{
+    unsigned long lpj;
+    static bool printed;
+    int this_cpu = smp_processor_id();
+
+    printk("*************************************\n");
+    printk("*                                   *\n");
+    printk("*        HELLO YOCTO KERNEL         *\n");
+    printk("*                                   *\n");
+    printk("*************************************\n");
+
+    if (per_cpu(cpu_loops_per_jiffy, this_cpu)) {
+          .
+          .
+          .
+```
+
+#### 3rd 构建更新的内核源代码
+
+要构建更新的内核源代码，请使用 devtool：
+
+```bash
+devtool build linux-yocto
+```
+
+#### 4th 使用新内核创建映像
+
+使用 devtool build-image 命令创建包含新内核的新镜像：
+
+```bash
+cd ~
+devtool build-image core-image-minimal
+```
+
+备注：如果您最初创建的映像是 Wic 文件，您可以使用另一种方法创建带有更新内核的新映像。有关示例，请参阅 [TipsAndTricks/KernelDevelopmentWithEsdk Wiki](https://wiki.yoctoproject.org/wiki/TipsAndTricks/KernelDevelopmentWithEsdk ) 页面中的步骤。
+
+#### 5th 测试新镜像
+
+启动映像：使用此命令在 QEMU 模拟器中启动修改后的映像：
+
+```bash
+runqemu qemux86
+```
+
+验证更改：使用 root（无密码）登录计算机，然后使用以下 shell 命令滚动控制台的启动输出：
+
+```bash
+dmesg | less
+```
+
+当你向下滚动控制台窗口时，应该能看到 printk 语句的部分输出结果。
+
+#### 6th 阶段并提交更改
+
+将工作目录更改为修改 calibrate.c 文件的位置，然后使用这些 Git 命令来分阶段提交修改：
+
+```bash
+cd poky_sdk/workspace/sources/linux-yocto
+git status
+git add init/calibrate.c
+git commit -m "calibrate: Add printk example"
+```
+
+#### 7th 导出补丁并创建附加文件
+
+要将提交导出为补丁并创建 .bbappend 文件，请使用以下命令。本示例使用先前建立的名为 meta-mylayer 的层：
+
+```bash
+devtool finish linux-yocto ~/meta-mylayer
+```
+
+备注：有关设置该层的信息，请参见 ["准备使用 devtool 进行开发" 部分的步骤 3](#3rd 为补丁创建图层)。
+
+命令完成后，补丁和 .bbappend 文件就会出现在 ~/meta-mylayer/recipes-kernel/linux 目录中。
+
+#### 8th 使用修改后的内核构建映像
+
+现在就可以构建包含内核补丁的镜像了。在为运行 BitBake 而设置的终端中，从构建目录执行以下命令：
+
+```bash
+cd poky/build
+bitbake core-image-minimal
+```
 
 ## 2.5 使用传统内核开发方法为内核打补丁
 
