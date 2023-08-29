@@ -1,3 +1,9 @@
+
+
+
+
+
+
 # 1 引言
 
 ## 1.1 概述
@@ -34,7 +40,9 @@
 
 ### 4th 根据需要更改内核配置
 
-如果您需要更改内核配置，可以[使用 menuconfig](#2.6.1 使用 menuconfig)，它允许您以交互方式开发和测试对内核进行的配置更改。保存使用 menuconfig 所做的更改会更新内核的 .config 文件。
+如果您需要更改内核配置，可以[使用 menuconfig](#2.6.1 使用 menuconfig)，它允许您以交互方式开发和测试对内核进行的配置更196319
+
+改。保存使用 menuconfig 所做的更改会更新内核的 .config 文件。
 
 备注：尽量抵制直接编辑现有 .config 文件的诱惑，该文件位于用于构建的源代码的构建目录中。这样做可能会在 OpenEmbedded 构建系统重新生成配置文件时产生意想不到的结果。
 
@@ -82,7 +90,28 @@ source poky/oe-init-build-env
 
 默认情况下，[MACHINE](#MACHINE) 变量被设置为 "qemux86-64"，如果你是在 64 位模式下为 QEMU 模拟器构建系统，那么这个设置就没问题。但如果不是，则需要在[构建目录](https://docs.yoctoproject.org/ref-manual/terms.html#term-Build-Directory)（即本例中的 poky/build）中的 conf/local.conf 文件中适当设置 [MACHINE](#MACHINE) 变量。
 
-此外，由于您正准备处理内核映像，因此需要设置 MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS 变量，以包含内核模块。
+此外，由于您正准备处理内核映像，因此需要设置 [MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS](#MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS) 变量，以包含内核模块。
+
+在本例中，我们希望为 qemux86 构建系统，因此必须将 MACHINE 变量设置为 "qemux86"，并添加 "kernel-modules"。如前所述，我们可以通过追加到 conf/local.conf 来实现这一点：
+
+```bash
+MACHINE = "qemux86"
+MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += "kernel-modules"
+```
+
+#### 3rd 为补丁创建图层
+
+您需要创建一个层来保存为内核映像创建的补丁。您可以使用 bitbake-layers create-layer 命令，如下所示：
+
+```bash
+$ cd poky/build
+$ bitbake-layers create-layer ../../meta-mylayer
+NOTE: Starting bitbake server...
+Add your new layer with 'bitbake-layers add-layer ../../meta-mylayer'
+$
+```
+
+备注：有关使用普通图层和 BSP 图层的背景信息，请分别参阅 Yocto Project 开发任务手册 中的 "理解并创建图层" 一节，以及 Yocto Project Board Support (BSP) 开发者指南 中的 "BSP 图层" 一节。关于如何使用 bitbake-layers create-layer 命令快速创建图层，请参阅《Yocto 工程开发任务手册》中的 "使用 bitbake-layers 脚本创建普通图层" 一节。
 
 ### 2.1.2 为传统内核开发做好准备
 
@@ -203,65 +232,3 @@ source poky/oe-init-build-env
 ### 6.1.5 如何安装特定的内核模块？
 
 ### 6.1.6 如何更改 Linux 内核命令行？
-
-# 7 参考手册
-
-## Metadata
-
-Yocto 项目的一个关键要素是用于构建 Linux 发行版的元数据（Metadata），它包含在 OpenEmbedded 编译系统在构建映像时解析的文件中。一般来说，元数据包括配方、配置文件和其他与构建指令本身相关的信息，以及用于控制构建内容和构建效果的数据。元数据还包括用于说明所使用软件版本的命令和数据、这些命令和数据的来源，以及对软件本身的更改或添加（补丁或辅助文件），这些更改或添加用于修复错误或定制软件，以便在特定情况下使用。OpenEmbedded-Core 是一套重要的验证元数据。
-
-在内核（"内核元数据"）方面，该术语指的是 yocto-kernel-cache Git 仓库中包含的内核配置片段和功能。
-
-## MACHINE
-
-指定构建映像的目标设备。您可以在构建目录中的 local.conf 文件中定义 MACHINE。默认情况下，MACHINE 设置为 "qemux86"，即使用 QEMU 仿真的基于 x86 架构的机器：
-
-```bash
-MACHINE ?= "qemux86"
-```
-
-该变量与同名的机器配置文件相对应，通过该文件可以设置特定机器的配置。因此，当 [MACHINE](#MACHINE) 设置为 "qemux86" 时，相应的 qemux86.conf 机器配置文件就会出现在[源目录](https://docs.yoctoproject.org/ref-manual/terms.html#term-Source-Directory)的 meta/conf/machine 中。
-
-Yocto 项目支持的已发布机器列表如下：
-
-```bash
-MACHINE ?= "qemuarm"
-MACHINE ?= "qemuarm64"
-MACHINE ?= "qemumips"
-MACHINE ?= "qemumips64"
-MACHINE ?= "qemuppc"
-MACHINE ?= "qemux86"
-MACHINE ?= "qemux86-64"
-MACHINE ?= "genericx86"
-MACHINE ?= "genericx86-64"
-MACHINE ?= "beaglebone"
-MACHINE ?= "edgerouter"
-```
-
-最后五个是 Yocto Project 参考硬件板，在 meta-yocto-bsp 层中提供。
-
-备注：在配置中添加额外的电路板支持包 (BSP) 层可为 [MACHINE](#MACHINE) 增加新的可能设置。
-
-## MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS
-
-建议安装的特定机器软件包列表，作为正在构建的映像的一部分。构建过程并不依赖于这些软件包的存在。不过，由于这是一个 "机器必备" 变量，因此软件包列表对于机器启动是必不可少的。此变量会影响基于 packagegroup-core-boot 的镜像，包括 core-image-minimal 镜像。
-
-该变量与 [MACHINE_ESSENTIAL_EXTRA_RDEPENDS](#MACHINE_ESSENTIAL_EXTRA_RDEPENDS) 变量类似，但不同的是，正在联编的映像并不依赖于该变量的软件包列表。换句话说，如果找不到该列表中的软件包，映像仍将继续联编。通常情况下，该变量用于处理重要的内核模块，这些模块的功能可能被选择内置到内核中，而不是作为模块，在这种情况下，将不会生成软件包。
-
-举个例子，你有一个自定义内核，需要特定的触摸屏驱动程序才能使用机器。不过，根据内核配置的不同，该驱动程序可以作为模块或内核内置。如果将驱动程序作为模块内置，则需要安装。但是，当驱动程序内置于内核中时，你仍然希望它能成功构建。这个变量设定了一种 "推荐" 关系，这样在后一种情况下，编译就不会因为缺少软件包而失败。为了实现这一目标，假设模块的软件包名为 kernel-module-ab123，你可以在机器的 .conf 配置文件中使用以下内容：
-
-```bash
-MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += "kernel-module-ab123"
-```
-
-备注：在本例中，kernel-module-ab123 配方需要明确设置其 PACKAGES 变量，以确保 BitBake 不会使用 kernel 配方的 PACKAGES_DYNAMIC 变量来满足依赖关系。
-
-## PACKAGES
-
-配方创建的软件包列表。默认值如下：
-
-```bash
-${PN}-src ${PN}-dbg ${PN}-staticdev ${PN}-dev ${PN}-doc ${PN}-locale ${PACKAGE_BEFORE_PN} ${PN}
-```
-
-在打包过程中，do_package 任务会遍历 PACKAGES，并使用与每个软件包对应的 FILES 变量将文件分配给软件包。如果一个文件与 PACKAGES 中多个软件包的 FILES 变量匹配，它将被分配到最早（最左）的软件包。
