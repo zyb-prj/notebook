@@ -6,11 +6,83 @@
 
 ## 1.2 内核修改工作流程
 
+内核修改涉及对 Yocto 项目内核的更改，包括更改配置选项和添加新的内核配方。配置更改可以以配置片段的形式添加，而配方修改则通过你创建的内核层中的内核配方-内核区域进行。
+
+本节简要介绍 Yocto 项目内核修改工作流程。插图和附带清单提供了一般信息和进一步信息的参考。
+
+工作流程如下图 1-1 所示：
+
+![1-1_yocto下Linux内核修改工作流程图](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/linux-source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/Linux%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C/1-1_yocto%E4%B8%8BLinux%E5%86%85%E6%A0%B8%E4%BF%AE%E6%94%B9%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%9B%BE.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001693276000&Signature=kie30quHKhd9QvutTddII%2BR3RJY%3D)
+
+### 1st 设置你的主机开发系统以支持使用 Yocto 项目的开发
+
+请参阅《Yocto 项目开发任务手册》中的 "[设置以使用 Yocto 项目 "部分](https://docs.yoctoproject.org/dev-manual/start.html)，了解如何让构建主机为使用 Yocto 项目做好准备。
+
+### 2nd 为内核开发设置主机开发系统
+
+建议使用 devtool 进行内核开发。或者，你也可以使用 Yocto 项目的传统内核开发方法。无论哪种方法，你都需要采取一些步骤来准备好开发环境。
+
+使用 devtool 需要有一个完整的镜像。有关详细信息，请参阅 "[准备使用 devtool 进行开发](#2.1.1 准备使用 devtool 进行开发)"部分。
+
+使用传统内核开发方法需要在本地 Git 代码库中拥有独立的内核源代码。更多信息，请参阅 "[为传统内核开发做好准备](#2.1.2 为传统内核开发做好准备)"部分。
+
+### 3rd 修改内核源代码
+
+修改内核并不总是意味着直接修改源文件。不过，如果您必须这样做，您可以在使用 devtool 时修改 Yocto 的[构建目录](https://docs.yoctoproject.org/ref-manual/terms.html#term-Build-Directory)中的文件。更多信息，请参阅 "[使用 devtool 给内核打补丁](#2.4 使用 devtool 修补内核)"部分。
+
+如果使用传统的内核开发方式，则需要编辑内核本地 Git 代码库中的源文件。如需了解更多信息，请参阅 "[使用传统内核开发为内核打补丁](#2.5 使用传统内核开发方法为内核打补丁)"部分。
+
+### 4th 根据需要更改内核配置
+
+如果您需要更改内核配置，可以[使用 menuconfig](#2.6.1 使用 menuconfig)，它允许您以交互方式开发和测试对内核进行的配置更改。保存使用 menuconfig 所做的更改会更新内核的 .config 文件。
+
+备注：尽量抵制直接编辑现有 .config 文件的诱惑，该文件位于用于构建的源代码的构建目录中。这样做可能会在 OpenEmbedded 构建系统重新生成配置文件时产生意想不到的结果。
+
+一旦对使用 menuconfig 所做的配置更改感到满意并已保存，就可以直接将生成的 .config 文件与现有的原始文件进行比较，并将这些更改收集到配置片段文件中，以便在内核的 .bbappend 文件中引用。
+
+此外，如果您在 BSP 层工作，需要修改 BSP 内核的配置，可以使用 menuconfig。
+
+### 5th 根据修改内容重建内核映像
+
+重建内核映像会应用你所做的更改。根据您的目标硬件，您可以在实际硬件或 QEMU 上验证您的更改。
+
+本开发者指南的其余部分将介绍内核开发过程中的常用任务、高级元数据用法以及 Yocto Linux 内核维护概念。
+
+
+
 # 2 通用任务
+
+本章介绍了使用 Yocto Project Linux 内核时的几种常见任务。这些任务包括：为内核开发准备主机开发系统、准备层、修改现有配方、修补内核、配置内核、迭代开发、使用自己的源代码，以及整合树外模块。
+
+备注：本章介绍的示例适用于 Yocto Project 2.4 及以后的版本。
 
 ## 2.1 准备好联编主机以在内核上工作
 
+在进行任何内核开发之前，你需要确保你的构建主机已设置为使用 Yocto 项目。有关如何设置的信息，请参阅《Yocto 项目开发任务手册》中的 "[设置使用 Yocto 项目](https://docs.yoctoproject.org/dev-manual/start.html)" 部分。准备系统的一部分工作是在系统上创建源代码目录 ([poky](https://docs.yoctoproject.org/ref-manual/terms.html#term-Source-Directory)) 的本地 Git 仓库。请按照《Yocto 项目开发任务手册》中 "[克隆 poky 仓库](https://docs.yoctoproject.org/dev-manual/start.html#cloning-the-poky-repository)" 一节的步骤设置源代码目录。
+
+备注：请确保您签出了相应的开发分支，或者通过签出特定标签创建了本地分支，以获得所需的 Yocto Project 版本。更多信息，请参阅《Yocto 项目开发任务手册》中的 "[在 Poky 中通过分支签出](https://docs.yoctoproject.org/dev-manual/start.html#checking-out-by-branch-in-poky)" 和 "[在 Poky 中通过标签签出](https://docs.yoctoproject.org/dev-manual/start.html#checking-out-by-tag-in-poky)" 章节。
+
+内核开发最好使用 devtool，而不是传统的内核工作流程方法。本节其余部分将提供这两种情况的信息。
+
 ### 2.1.1 准备使用 devtool 进行开发
+
+按照以下步骤准备使用 devtool 更新内核映像。完成此步骤后，您将获得干净的内核映像，并准备好按照 "[使用 devtool 给内核打补丁](#2.4 使用 devtool 为内核打补丁)" 部分所述进行修改：
+
+#### 1st 初始化 BitBake 环境
+
+您需要通过获取构建环境脚本（即 oe-init-build-env）来初始化 BitBake 的构建环境：
+
+```bash
+source poky/oe-init-build-env
+```
+
+备注：前面的命令假定 [Yocto 项目源代码库](https://docs.yoctoproject.org/overview-manual/development-environment.html#yocto-project-source-repositories)（即 poky）已使用 Git 克隆，且本地仓库名为 "poky"。
+
+#### 2nd 准备 local.conf 文件
+
+默认情况下，[MACHINE](#MACHINE) 变量被设置为 "qemux86-64"，如果你是在 64 位模式下为 QEMU 模拟器构建系统，那么这个设置就没问题。但如果不是，则需要在[构建目录](https://docs.yoctoproject.org/ref-manual/terms.html#term-Build-Directory)（即本例中的 poky/build）中的 conf/local.conf 文件中适当设置 [MACHINE](#MACHINE) 变量。
+
+此外，由于您正准备处理内核映像，因此需要设置 MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS 变量，以包含内核模块。
 
 ### 2.1.2 为传统内核开发做好准备
 
@@ -26,7 +98,7 @@
 
 ### 2.3.4 使用 "树内 "defconfig 文件
 
-## 2.4 使用 devtool 修补内核
+## 2.4 使用 devtool 为内核打补丁
 
 ## 2.5 使用传统内核开发方法为内核打补丁
 
@@ -139,3 +211,57 @@
 Yocto 项目的一个关键要素是用于构建 Linux 发行版的元数据（Metadata），它包含在 OpenEmbedded 编译系统在构建映像时解析的文件中。一般来说，元数据包括配方、配置文件和其他与构建指令本身相关的信息，以及用于控制构建内容和构建效果的数据。元数据还包括用于说明所使用软件版本的命令和数据、这些命令和数据的来源，以及对软件本身的更改或添加（补丁或辅助文件），这些更改或添加用于修复错误或定制软件，以便在特定情况下使用。OpenEmbedded-Core 是一套重要的验证元数据。
 
 在内核（"内核元数据"）方面，该术语指的是 yocto-kernel-cache Git 仓库中包含的内核配置片段和功能。
+
+## MACHINE
+
+指定构建映像的目标设备。您可以在构建目录中的 local.conf 文件中定义 MACHINE。默认情况下，MACHINE 设置为 "qemux86"，即使用 QEMU 仿真的基于 x86 架构的机器：
+
+```bash
+MACHINE ?= "qemux86"
+```
+
+该变量与同名的机器配置文件相对应，通过该文件可以设置特定机器的配置。因此，当 [MACHINE](#MACHINE) 设置为 "qemux86" 时，相应的 qemux86.conf 机器配置文件就会出现在[源目录](https://docs.yoctoproject.org/ref-manual/terms.html#term-Source-Directory)的 meta/conf/machine 中。
+
+Yocto 项目支持的已发布机器列表如下：
+
+```bash
+MACHINE ?= "qemuarm"
+MACHINE ?= "qemuarm64"
+MACHINE ?= "qemumips"
+MACHINE ?= "qemumips64"
+MACHINE ?= "qemuppc"
+MACHINE ?= "qemux86"
+MACHINE ?= "qemux86-64"
+MACHINE ?= "genericx86"
+MACHINE ?= "genericx86-64"
+MACHINE ?= "beaglebone"
+MACHINE ?= "edgerouter"
+```
+
+最后五个是 Yocto Project 参考硬件板，在 meta-yocto-bsp 层中提供。
+
+备注：在配置中添加额外的电路板支持包 (BSP) 层可为 [MACHINE](#MACHINE) 增加新的可能设置。
+
+## MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS
+
+建议安装的特定机器软件包列表，作为正在构建的映像的一部分。构建过程并不依赖于这些软件包的存在。不过，由于这是一个 "机器必备" 变量，因此软件包列表对于机器启动是必不可少的。此变量会影响基于 packagegroup-core-boot 的镜像，包括 core-image-minimal 镜像。
+
+该变量与 [MACHINE_ESSENTIAL_EXTRA_RDEPENDS](#MACHINE_ESSENTIAL_EXTRA_RDEPENDS) 变量类似，但不同的是，正在联编的映像并不依赖于该变量的软件包列表。换句话说，如果找不到该列表中的软件包，映像仍将继续联编。通常情况下，该变量用于处理重要的内核模块，这些模块的功能可能被选择内置到内核中，而不是作为模块，在这种情况下，将不会生成软件包。
+
+举个例子，你有一个自定义内核，需要特定的触摸屏驱动程序才能使用机器。不过，根据内核配置的不同，该驱动程序可以作为模块或内核内置。如果将驱动程序作为模块内置，则需要安装。但是，当驱动程序内置于内核中时，你仍然希望它能成功构建。这个变量设定了一种 "推荐" 关系，这样在后一种情况下，编译就不会因为缺少软件包而失败。为了实现这一目标，假设模块的软件包名为 kernel-module-ab123，你可以在机器的 .conf 配置文件中使用以下内容：
+
+```bash
+MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += "kernel-module-ab123"
+```
+
+备注：在本例中，kernel-module-ab123 配方需要明确设置其 PACKAGES 变量，以确保 BitBake 不会使用 kernel 配方的 PACKAGES_DYNAMIC 变量来满足依赖关系。
+
+## PACKAGES
+
+配方创建的软件包列表。默认值如下：
+
+```bash
+${PN}-src ${PN}-dbg ${PN}-staticdev ${PN}-dev ${PN}-doc ${PN}-locale ${PACKAGE_BEFORE_PN} ${PN}
+```
+
+在打包过程中，do_package 任务会遍历 PACKAGES，并使用与每个软件包对应的 FILES 变量将文件分配给软件包。如果一个文件与 PACKAGES 中多个软件包的 FILES 变量匹配，它将被分配到最早（最左）的软件包。
