@@ -4,6 +4,26 @@
 
 该术语指 OpenEmbedded 构建系统用于构建的区域。该区域在源代码目录（即 oe-init-build-env）中的设置环境脚本时创建。TOPDIR 变量指向[构建目录](#Build Directory)。
 
+## Poky
+
+Poky 的发音是 Pock-ee，是一种参考嵌入式发行版和参考测试配置。Poky 提供以下功能：
+
+- 用于说明如何定制发行版的基础功能发行版。
+
+
+- 测试 Yocto 项目组件的一种方法（即 Poky 用于验证 Yocto 项目）。
+
+
+- 下载 Yocto 项目的工具。
+
+Poky 并非产品级发行版。相反，它是定制的一个良好起点。
+
+备注：Poky 最初是 OpenedHand 开发的一个开源项目。OpenedHand 在现有 OpenEmbedded 构建系统的基础上开发了 Poky，目的是为嵌入式 Linux 创建一个商业上可支持的构建系统。英特尔公司收购 OpenedHand 后，poky 项目成为 Yocto 项目构建系统的基础。
+
+
+
+
+
 # 12 变量词汇表
 
 ## TOPDIR
