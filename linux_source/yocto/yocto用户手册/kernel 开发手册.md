@@ -155,7 +155,77 @@ NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun 
 
 #### 1st_初始化-BitBake-环境
 
-在使用 BitBake 进行任何操作之前，你需要通过获取构建环境脚本（即 [oe-init-build-env](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#4-1-10_oe-init-build-env)）来初始化 BitBake 的构建环境。另外，在本例中，请确保你为 poky 签出的本地分支是 Yocto 项目的 Mickledore 分支。如果您需要签出 Mickledore 分支，请参阅《Yocto 项目开发任务手册》中的 "在 Poky 中按分支签出" 部分：
+在使用 BitBake 进行任何操作之前，你需要通过获取构建环境脚本（即 [oe-init-build-env](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#4-1-10_oe-init-build-env)）来初始化 BitBake 的构建环境。另外，在本例中，请确保你为 poky 签出的本地分支是 Yocto 项目的 Mickledore 分支。如果您需要签出 Mickledore 分支，请参阅《Yocto 项目开发任务手册》中的 "[在 Poky 中按分支签出](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-4-2_%E5%9C%A8-poky-%E4%B8%AD%E6%8C%89%E5%88%86%E6%94%AF%E7%AD%BE%E5%87%BA)" 部分：
+
+```bash
+$ cd poky
+$ git branch
+master
+* mickledore
+$ source oe-init-build-env
+```
+
+备注：前面的命令假定 [Yocto 项目源代码库](https://docs.yoctoproject.org/overview-manual/development-environment.html#yocto-project-source-repositories)（即 poky）已使用 Git 克隆，且本地仓库名为 "poky"。
+
+#### 2nd_准备-local.conf-文件
+
+默认情况下，[MACHINE](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine) 变量被设置为 "qemux86-64"，如果你是在 64 位模式下为 QEMU 模拟器构建系统，那么这个设置就没问题。但如果不是，则需要在[构建目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#build-directory)（即本例中的 poky/build）中的 conf/local.conf 文件中适当设置 [MACHINE](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine) 变量。
+
+此外，由于您正准备处理内核映像，因此需要设置 [MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine_essential_extra_rrecommends) 变量以包含内核模块。
+
+在本例中，我们希望为 qemux86 构建系统，因此必须将 [MACHINE](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#machine) 变量设置为 "qemux86"，并添加 "kernel-modules"。如前所述，我们可以在 conf/local.conf 中添加以下内容：
+
+```bash
+MACHINE = "qemux86"
+MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS += "kernel-modules"
+```
+
+#### 3rd_为补丁创建图层
+
+您需要创建一个层来保存为内核映像创建的补丁。您可以使用 bitbake-layers create-layer 命令，如下所示：
+
+```bash
+$ cd poky/build
+$ bitbake-layers create-layer ../../meta-mylayer
+NOTE: Starting bitbake server...
+Add your new layer with 'bitbake-layers add-layer ../../meta-mylayer'
+$
+```
+
+备注：有关使用普通图层和 BSP 图层的背景信息，请分别参阅 Yocto Project 开发任务手册 中的 "[理解并创建图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#3_%E7%90%86%E8%A7%A3%E5%B9%B6%E5%88%9B%E5%BB%BA%E5%9B%BE%E5%B1%82)" 一节，以及 Yocto Project Board Support (BSP) 开发者指南 中的 "[BSP 图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/bsp%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#1_bsp-%E5%9B%BE%E5%B1%82)" 一节。关于如何使用 bitbake-layers create-layer 命令快速创建图层，请参阅《Yocto 工程开发任务手册》中的 "[使用 bitbake-layers 脚本创建普通图层](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#3-8_%E4%BD%BF%E7%94%A8-bitbake-layers-%E8%84%9A%E6%9C%AC%E5%88%9B%E5%BB%BA%E5%B8%B8%E8%A7%84%E5%9B%BE%E5%B1%82)" 一节。
+
+#### 4th_向-BitBake-构建环境通报您的图层
+
+按照创建图层时的指示，您需要将图层添加到 bblayers.conf 文件的 BBLAYERS 变量中，如下所示：
+
+```bash
+$ cd poky/build
+$ bitbake-layers add-layer ../../meta-mylayer
+NOTE: Starting bitbake server...
+$
+```
+
+#### 5th 编译镜像
+
+准备内核工作的最后一步是使用 bitbake 构建初始镜像：
+
+```bash
+$ bitbake core-image-minimal
+Parsing recipes: 100% |##########################################| Time: 0:00:05
+Parsing of 830 .bb files complete (0 cached, 830 parsed). 1299 targets, 47 skipped, 0 masked, 0 errors.
+WARNING: No packages to add, building image core-image-minimal unmodified
+Loading cache: 100% |############################################| Time: 0:00:00
+Loaded 1299 entries from dependency cache.
+NOTE: Resolving any missing task queue dependencies
+Initializing tasks: 100% |#######################################| Time: 0:00:07
+Checking sstate mirror object availability: 100% |###############| Time: 0:00:00
+NOTE: Executing SetScene Tasks
+NOTE: Executing RunQueue Tasks
+NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun and all succeeded.
+```
+
+如果是为实际硬件而非仿真而构建，可以将映像闪存到 /dev/sdd 上的 USB 记忆棒中，然后启动设备。有关使用 Minnowboard 的示例，请参阅 [TipsAndTricks/KernelDevelopmentWithEsdk Wiki](https://wiki.yoctoproject.org/wiki/TipsAndTricks/KernelDevelopmentWithEsdk) 页面。
+至此，你就可以开始修改内核了。更多示例，请参阅 "[使用 devtool 修补内核](#2-4_使用-devtool-为内核打补丁)" 部分。
 
 ## 2-2_创建和准备图层
 
