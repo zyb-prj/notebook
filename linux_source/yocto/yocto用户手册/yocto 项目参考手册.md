@@ -68,17 +68,40 @@ MACHINE ?= "edgerouter"
 
 ## SRC_URI
 
-有关该变量的初始描述，请参阅 BitBake 手册：SRC_URI。
+有关该变量的初始描述，请参阅 BitBake 手册：[SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#src_uri)。
 
 OpenEmbedded 和 Yocto 项目增加了以下功能。
 
 有标准选项和特定配方选项。下面是标准选项：
 
-apply - 是否应用补丁。默认操作是打补丁。
+- apply - 是否应用补丁。默认操作是打补丁。
 
-striplevel - 应用补丁时要使用的级别。默认级别为 1。
 
-patchdir - 指定应用补丁的目录。默认值为 ${S}。
+- striplevel - 应用补丁时要使用的级别。默认级别为 1。
+
+
+- patchdir - 指定应用补丁的目录。默认值为 ${S}。
+
+以下是从修订控制系统中获取建筑代码的特定选项：
+
+- mindate - 仅当 SRCDATE 等于或大于 mindate 时才应用补丁。
+
+
+- maxdate - 仅当 SRCDATE 不晚于 maxdate 时才应用补丁。
+
+
+- minrev - 仅当 SRCREV 等于或大于 minrev 时才应用修补程序。
+
+
+- maxrev - 仅当 SRCREV 不晚于 maxrev 时才应用修补程序。
+
+
+- rev - 仅当 SRCREV 等于 rev 时才打补丁。
+
+
+- notrev - 仅当 SRCREV 不等于 rev 时才打补丁。
+
+备注：如果希望构建系统从附加文件中获取通过 [SRC_URI](#SRC_URI) 语句指定的文件，则必须确保在附加文件中使用 [FILESEXTRAPATHS](#FILESEXTRAPATHS) 变量来扩展 FILESPATH 变量。
 
 ## MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS
 

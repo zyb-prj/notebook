@@ -504,7 +504,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI += "file://0001-calibrate.c-Added-some-printk-statements.patch"
 ```
 
-FILESEXTRAPATHS 和 SRC_URI 语句可让 OpenEmbedded 编译系统找到补丁文件。
+FILESEXTRAPATHS 和 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 语句可让 OpenEmbedded 编译系统找到补丁文件。
 
 ## 2-6_配置内核
 
