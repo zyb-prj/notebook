@@ -25,7 +25,21 @@ Resolving deltas: 100% (323116/323116), done.
 Checking connectivity... done.
 ```
 
-除非你指定了特定的开发分支或标记名，否则 Git 会克隆 "master "分支，从而产生 "master "的最新开发变更快照。关于如何签出特定的开发分支，或如何根据标签名签出本地分支，请分别参阅[在 Poky 中按分支签出](#2.4.2 签出 poky 分支)和[在 Poky 中按标签签出](#2.4.3 在 Poky 中按标签签出) 章节。
+除非你指定了特定的开发分支或标记名，否则 Git 会克隆 "master "分支，从而产生 "master "的最新开发变更快照。关于如何签出特定的开发分支，或如何根据标签名签出本地分支，请分别参阅 "[在 Poky 中按分支签出](#2.4.2 签出 poky 分支)" 和 "[在 Poky 中按标签签出](#2.4.3 在 Poky 中按标签签出)" 章节。
+
+
+
+
+
+
+
+
+
+
+
+"[在 Poky 中按分支签出](4.1.10 oe-init-build-env)" 
+
+[asdasd](#asdasasasdvfvsdds)
 
 ### 2.4.2 在 Poky 中按分支签出
 
@@ -35,7 +49,7 @@ Checking connectivity... done.
 
 #### 1st 切换到 Poky 目录
 
-如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅[克隆 poky 仓库](#2.4.1 克隆 poky 仓库)部分。
+如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#2.4.1 克隆 poky 仓库)" 部分。
 
 #### 2nd 确定现有分支名称
 
@@ -89,7 +103,7 @@ $ git branch
 
 #### 1st 切换到 Poky 目录
 
-如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅[克隆 poky 仓库](#2.4.1 克隆 poky 仓库)部分。
+如果你有本地 poky Git 仓库，请切换到该目录。如果本地没有 poky，请参阅 "[克隆 poky 仓库](#2.4.1 克隆 poky 仓库)" 部分。
 
 #### 2nd 获取标签名称
 
@@ -147,3 +161,9 @@ $ git branch
 ## 4.1 顶级核心组件
 
 ### 4.1.10 oe-init-build-env
+
+
+
+
+
+### asdasasasdvfvsdds

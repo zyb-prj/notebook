@@ -22,7 +22,7 @@
 
 ### 1st 设置你的主机开发系统以支持使用 Yocto 项目的开发
 
-请参阅《Yocto 项目开发任务手册》中的 "[设置以使用 Yocto 项目"部分](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-%E8%AE%BE%E7%BD%AE%E4%BD%BF%E7%94%A8-yocto-%E9%A1%B9%E7%9B%AE)，了解如何让构建主机为使用 Yocto 项目做好准备。
+请参阅《Yocto 项目开发任务手册》中的 "[设置以使用 Yocto 项目](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-%E8%AE%BE%E7%BD%AE%E4%BD%BF%E7%94%A8-yocto-%E9%A1%B9%E7%9B%AE)" 部分。
 
 ### 2nd 为内核开发设置主机开发系统
 
