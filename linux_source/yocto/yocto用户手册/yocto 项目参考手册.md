@@ -24,6 +24,26 @@ Poky 并非产品级发行版。相反，它是定制的一个良好起点。
 
 
 
+# 6_Tasks-任务
+
+### 6-4-6_`do_kernel_menuconfig`
+
+由用户调用，用于操作用于构建 linux-yocto 配方的 .config 文件。该任务会启动 Linux 内核配置工具，然后你可以用它来修改内核配置。
+
+备注：您也可以通过命令行调用该工具，方法如下：
+
+```bash
+$ bitbake linux-yocto -c menuconfig
+```
+
+### 6-4-9_`do_savedefconfig`
+
+当用户调用时，会创建一个 defconfig 文件，用来代替默认的 defconfig。保存的 defconfig 文件包含默认 defconfig 与用户使用其他方法（如 [do_kernel_menuconfig](#6-4-6_`do_kernel_menuconfig`) 任务）所作更改之间的差异。您可以使用以下命令调用该任务：
+
+有关该配置工具的更多信息，请参阅《Yocto Project Linux 内核开发手册》中的 "[使用 menuconfig](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/kernel%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-6-1_%E4%BD%BF%E7%94%A8-menuconfig)" 部分。
+
+
+
 # 12 变量词汇表
 
 ## TOPDIR
