@@ -237,6 +237,19 @@ NOTE: Tasks Summary: Attempted 2866 tasks of which 2604 didn't need to be rerun 
 
 ### 2-3-3_更改配置
 
+您可以通过包含 defconfig 文件，并在 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 中指定要应用到该文件的配置片段，对最终用于终极 Linux 内核配置的 .config 文件进行整体或增量更改。
+
+如果你有一个完整的、可运行的 Linux 内核 .config 文件用于配置，像之前一样，将该文件复制到层的 recipes-kernel/linux 目录中相应的 ${[PN](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#pn)} 目录，并将复制的文件重命名为 "defconfig"。然后，在层中的 linux-yocto .bbappend 文件中添加以下几行：
+
+```bash
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://defconfig"
+```
+
+[SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 告诉编译系统如何搜索文件，而 [FILESEXTRAPATHS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filesextrapaths) 则扩展了 [FILESPATH](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filespath) 变量（搜索目录），使其包括为保存配置更改而创建的 ${[PN](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#pn)} 目录。
+
+也可以使用 do_savedefconfig 任务生成的普通 defconfig 文件，而不是完整的 .config 文件。这只会指定非默认配置值。你还需要在层中的 linux-yocto .bbappend 文件中设置 KCONFIG_MODE：
+
 ### 2-3-4_使用-defconfig-文件
 
 ## 2-4_使用-devtool-为内核打补丁
@@ -507,6 +520,12 @@ SRC_URI += "file://0001-calibrate.c-Added-some-printk-statements.patch"
 FILESEXTRAPATHS 和 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 语句可让 OpenEmbedded 编译系统找到补丁文件。
 
 ## 2-6_配置内核
+
+配置 Yocto Project 内核包括确保 .config 文件中包含了所构建镜像的所有正确信息。你可以使用 menuconfig 工具和配置片段来确保 .config 文件符合你的需要。您还可以将已知配置保存在 defconfig 文件中，以便构建系统用于内核配置。
+
+本节将介绍如何使用 menuconfig、创建和使用配置片段，以及如何交互式修改 .config 文件以创建最精简的内核配置文件。
+
+有关内核配置的更多信息，请参阅 "更改配置" 部分。
 
 ### 2-6-1_使用-menuconfig
 
