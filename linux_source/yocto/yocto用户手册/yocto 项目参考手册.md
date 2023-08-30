@@ -20,13 +20,19 @@ Poky 并非产品级发行版。相反，它是定制的一个良好起点。
 
 备注：Poky 最初是 OpenedHand 开发的一个开源项目。OpenedHand 在现有 OpenEmbedded 构建系统的基础上开发了 Poky，目的是为嵌入式 Linux 创建一个商业上可支持的构建系统。英特尔公司收购 OpenedHand 后，poky 项目成为 Yocto 项目构建系统的基础。
 
+# 5_Classes
+
+## 5-67_kernel-yocto
+
+[kernel-yocto](#5-67_kernel-yocto) 类提供了从 linux-yocto 风格内核源代码库构建的通用功能。
 
 
 
 
-# 6_Tasks-任务
 
-### 6-4-6_`do_kernel_menuconfig`
+# 6_Tasks
+
+### 6-4-6_do_kernel_menuconfig
 
 由用户调用，用于操作用于构建 linux-yocto 配方的 .config 文件。该任务会启动 Linux 内核配置工具，然后你可以用它来修改内核配置。
 
@@ -36,9 +42,9 @@ Poky 并非产品级发行版。相反，它是定制的一个良好起点。
 $ bitbake linux-yocto -c menuconfig
 ```
 
-### 6-4-9_`do_savedefconfig`
+### 6-4-9_do_savedefconfig
 
-当用户调用时，会创建一个 defconfig 文件，用来代替默认的 defconfig。保存的 defconfig 文件包含默认 defconfig 与用户使用其他方法（如 [do_kernel_menuconfig](#6-4-6_`do_kernel_menuconfig`) 任务）所作更改之间的差异。您可以使用以下命令调用该任务：
+当用户调用时，会创建一个 defconfig 文件，用来代替默认的 defconfig。保存的 defconfig 文件包含默认 defconfig 与用户使用其他方法（如 [do_kernel_menuconfig](#6-4-6_do_kernel_menuconfig) 任务）所作更改之间的差异。您可以使用以下命令调用该任务：
 
 有关该配置工具的更多信息，请参阅《Yocto Project Linux 内核开发手册》中的 "[使用 menuconfig](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/kernel%20%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C.md#2-6-1_%E4%BD%BF%E7%94%A8-menuconfig)" 部分。
 
@@ -171,3 +177,27 @@ OpenEmbedded 构建系统搜索补丁和文件时使用的默认目录集。
 ## FILESEXTRAPATHS
 
 扩展 OpenEmbedded 构建系统在处理配方和附加文件时查找文件和补丁时使用的搜索路径。BitBake 处理配方时使用的默认目录最初由 FILESPATH 变量定义。你可以使用 FILESEXTRAPATHS 来扩展 FILESPATH 变量。
+
+## KCONFIG_MODE
+
+与 [kernel-yocto](#5-67_kernel-yocto) 类一起使用时，指定内核配置值，用于未在提供的 defconfig 文件中指定的选项。有效选项包括：
+
+```bash
+KCONFIG_MODE = "alldefconfig"
+KCONFIG_MODE = "allnoconfig"
+```
+
+在 alldefconfig 模式下，未明确指定的选项将分配给 Kconfig 默认值。在 allnoconfig 模式下，未明确指定的选项将在内核配置中禁用。
+
+如果未设置 [KCONFIG_MODE](#KCONFIG_MODE)，行为将取决于 defconfig 文件的来源。"in-tree"  defconfig 文件将在 alldefconfig 模式下处理，而通过元层放置在 ${WORKDIR} 中的 defconfig 文件将在 allnoconfig 模式下处理。
+
+可通过 KBUILD_DEFCONFIG 变量选择 "in-tree" 的 defconfig 文件。[KCONFIG_MODE](#KCONFIG_MODE) 不需要明确设置。
+
+从正在运行的 Linux 内核中复制 .config 文件，将其重命名为 defconfig，然后通过元层将其放入 Linux 内核 ${WORKDIR} 中，即可生成与 allnoconfig 模式兼容的 defconfig 文件。无需明确设置 [KCONFIG_MODE](#KCONFIG_MODE)。
+
+可以使用 [do_savedefconfig](#6-4-9_do_savedefconfig) 任务生成与 alldefconfig 模式兼容的 defconfig 文件，并通过元层放入 Linux 内核 ${WORKDIR}。明确设置 [KCONFIG_MODE](#KCONFIG_MODE)：
+
+```bash
+KCONFIG_MODE = "alldefconfig"
+```
+

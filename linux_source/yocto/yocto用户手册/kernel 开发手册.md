@@ -248,7 +248,7 @@ SRC_URI += "file://defconfig"
 
 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 告诉编译系统如何搜索文件，而 [FILESEXTRAPATHS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filesextrapaths) 则扩展了 [FILESPATH](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filespath) 变量（搜索目录），使其包括为保存配置更改而创建的 ${[PN](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#pn)} 目录。
 
-也可以使用 do_savedefconfig 任务生成的普通 defconfig 文件，而不是完整的 .config 文件。这只会指定非默认配置值。你还需要在层中的 linux-yocto .bbappend 文件中设置 KCONFIG_MODE：
+也可以使用 [do_savedefconfig](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#6-4-6_do_kernel_menuconfig) 任务生成的普通 defconfig 文件，而不是完整的 .config 文件。这只会指定非默认配置值。你还需要在层中的 linux-yocto .bbappend 文件中设置 KCONFIG_MODE：
 
 ### 2-3-4_使用-defconfig-文件
 
