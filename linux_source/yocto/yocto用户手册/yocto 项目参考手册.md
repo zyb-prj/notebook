@@ -221,3 +221,75 @@ KCONFIG_MODE = "allnoconfig"
 KCONFIG_MODE = "alldefconfig"
 ```
 
+## PREFERRED_VERSION
+
+如果配方有多个版本，该变量将决定优先选择哪个版本。您必须在该变量后缀上您要选择的 PN（下面第一个例子中为 python），并相应指定 PV（例子中为 3.4.0）。
+
+[PREFERRED_VERSION](#PREFERRED_VERSION) 变量通过 "%" 字符支持有限的通配符使用。您可以使用该字符匹配任意数量的字符，这在指定包含可能更改的长版本号的版本时非常有用。下面是两个例子：
+
+```bash
+PREFERRED_VERSION_python = "3.4.0"
+PREFERRED_VERSION_linux-yocto = "5.0%"
+```
+
+备注："%" 字符的使用受到限制，只能在字符串的末尾使用。不能在字符串的其他位置使用通配符。
+
+指定的版本与 PV 匹配，而 [PV](#PV) 不一定与配方文件名中的版本部分匹配。例如，考虑两个配方 foo_1.2.bb 和 fo_git.bb，其中 foo_git.bb 包含以下赋值：
+
+```bash
+PV = "1.1+git${SRCPV}"
+```
+
+在这种情况下，选择 foo_git.bb 的正确方法是使用如下赋值：
+
+```bash
+PREFERRED_VERSION_foo = "1.1+git%"
+```
+
+将前面的例子与下面的错误例子进行比较，后者是行不通的：
+
+```bash
+PREFERRED_VERSION_foo = "git"
+```
+
+有时，配置文件会以难以更改的方式设置 [PREFERRED_VERSION](#PREFERRED_VERSION) 变量。你可以使用 OVERRIDES 来设置特定机器的覆盖值。下面是一个例子：
+
+## OVERRIDES
+
+以冒号分隔的当前适用的覆盖列表。重写是 BitBake 的一种机制，允许在解析结束时选择性地重写变量。[OVERRIDES](#OVERRIDES) 中的重载集代表构建过程中的 "状态"，包括当前正在构建的配方、构建配方的机器等。
+
+例如，如果字符串 "an-override" 作为元素出现在 [OVERRIDES](#OVERRIDES) 中以冒号分隔的列表中，那么下面的赋值将在解析结束时以 "overridden" 值覆盖 FOO：
+
+```bash
+FOO:an-override = "overridden"
+```
+
+有关覆盖机制的更多信息，请参阅《BitBake 用户手册》中的 "条件语法（覆盖" 部分。
+
+## P
+
+食谱名称和版本。[P](#P) 由以下部分组成：
+
+```bash
+${PN}-${PV}
+```
+
+## PN
+
+根据上下文的不同，该变量有两种不同的功能：配方名称或生成的软件包名称。
+
+[PN](#PN) 指的是 OpenEmbedded 构建系统用于创建软件包的输入文件中的配方名称。该名称通常是从配方文件名中提取的。例如，如果配方名为 expat_2.0.1.bb，那么 PN 的默认值就是 "expat"。
+
+该变量指的是 OpenEmbedded 构建系统创建或生成的文件中的软件包名称。
+
+如果适用，[PN](#PN) 变量还包含任何特殊的后缀或前缀。例如，使用 bash 为本地机器构建软件包时，[PN](#PN) 为 bash-native。使用 bash 为目标机和 Multilib 构建软件包时，[PN](#PN) 分别为 bash 和 lib64-bash。
+
+## PV
+
+配方的版本。版本通常从菜谱文件名中提取。例如，如果配方名为 expat_2.0.1.bb，那么 PV 的默认值就是 "2.0.1"。除非从源代码库（如 Git 或 Subversion）构建不稳定（即开发）版本，否则通常不会在配方中覆盖 [PV](#PV) 值。
+
+[PV](#PV) 是 [PKGV](#PKGV) 变量的默认值。
+
+## PKGV
+
+配方构建的软件包的版本。默认情况下，[PKGV](#PKGV) 设置为 [PV](#PV)。

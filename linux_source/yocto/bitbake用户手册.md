@@ -1034,6 +1034,85 @@ D:append = "additional data"
 
 还可以对 shell 函数和 BitBake 风格 Python 函数进行追加和预追加。有关示例，请参阅 "Shell 函数" 和 "BitBake 风格 Python 函数" 部分。
 
+## 3-3_条件语法-覆盖
+
+BitBake 使用 [OVERRIDES](#OVERRIDES) 来控制 BitBake 解析配方和配置文件后覆盖哪些变量。本节将介绍如何使用 [OVERRIDES](#OVERRIDES) 作为条件元数据，讨论关键扩展与 [OVERRIDES](#OVERRIDES) 的关系，并提供一些示例帮助理解。
+
+### 3-3-1_条件元数据
+
+您可以使用 [OVERRIDES](#OVERRIDES) 有条件地选择变量的特定版本，以及有条件地追加或预置变量值。
+
+备注：覆盖只能使用小写字母、数字和破折号。特别是，重载名称中不允许使用冒号，因为冒号用于分隔重载名称和变量名称。
+
+- 选择变量
+
+    [OVERRIDES](#OVERRIDES) 变量是一个以冒号分隔的列表，其中包含需要满足条件的项目。因此，如果您有一个以 "arm" 为条件的变量，而 "arm" 在 [OVERRIDES](#OVERRIDES) 中，那么就会使用 "arm" 变量的特定版本，而不是非条件版本。下面是一个例子：
+
+    ```bash
+    OVERRIDES = "architecture:os:machine"
+    TEST = "default"
+    TEST:os = "osspecific"
+    TEST:nooverride = "othercondvalue"
+    ```
+
+    在本例中，[OVERRIDES](#OVERRIDES) 变量列出了三个重载项："架构"、"操作系统 "和 "机器"。变量 TEST 本身的默认值为 "default"。通过在变量中添加 "os" 覆盖项（即 TEST:os），可以选择特定于操作系统的 TEST 变量版本。
+
+    为了更好地理解这一点，请看一个实际例子，该例子假定了一个基于 OpenEmbedded 元数据的 Linux 内核配方文件。配方文件中的以下几行首先将内核分支变量 KBRANCH 设置为默认值，然后根据构建的架构有条件地覆盖该值：
+
+    ```bash
+    KBRANCH = "standard/base"
+    KBRANCH:qemuarm = "standard/arm-versatile-926ejs"
+    KBRANCH:qemumips = "standard/mti-malta32"
+    KBRANCH:qemuppc = "standard/qemuppc"
+    KBRANCH:qemux86 = "standard/common-pc/base"
+    KBRANCH:qemux86-64 = "standard/common-pc-64/base"
+    KBRANCH:qemumips64 = "standard/mti-malta64"
+    ```
+
+    
+
+- 追加和预追加
+
+    BitBake 还支持根据 [OVERRIDES](#OVERRIDES) 中是否列出特定项目对变量值进行追加和预追加操作。下面是一个例子：
+
+    ```bash
+    DEPENDS = "glibc ncurses"
+    OVERRIDES = "machine:local"
+    DEPENDS:append:machine = "libmad"
+    ```
+
+    在这个例子中，[DEPENDS](#DEPENDS) 变成了 "glibc ncurses libmad"。
+
+    同样，以基于 OpenEmbedded 元数据的内核配方文件为例，以下几行将根据架构有条件地附加到 KERNEL_FEATURES 变量中：
+
+    ```bash
+    KERNEL_FEATURES:append = " ${KERNEL_EXTRA_FEATURES}"
+    KERNEL_FEATURES:append:qemux86=" cfg/sound.scc cfg/paravirt_kvm.scc"
+    KERNEL_FEATURES:append:qemux86-64=" cfg/sound.scc cfg/paravirt_kvm.scc"
+    ```
+
+- 为单一任务设置变量
+
+    BitBake 支持为单个任务的持续时间设置变量。下面是一个例子：
+
+    ```bash
+    FOO:task-configure = "val 1"
+    FOO:task-compile = "val 2"
+    ```
+
+    在上例中，执行 do_configure 任务时，FOO 的值为 "val 1"，而执行 do_compile 任务时，FOO 的值为 "val 2"。
+
+    在内部，这是通过在 do_compile 任务的本地数据存储的 [OVERRIDES](#OVERRIDES) 值前面加上任务（如 "task-compile:"）来实现的。
+
+    您也可以将此语法与其他组合（如":prepend"）一起使用，如下例所示：
+
+    ```bash
+    EXTRA_OEMAKE:prepend:task-compile = "${PARALLEL_MAKE} "
+    ```
+
+    备注：在 BitBake 1.52（Honister 3.4）版本之前，[OVERRIDES](#OVERRIDES) 的语法使用 _ 而不是:，因此您仍然可以找到很多使用 _append、_prepend 和 _remove 的文档。详情请参阅 Yocto 项目手册迁移说明中的覆盖语法变更部分。
+
+
 ## 3.4 共享功能
 
 ### 3.4.5 INHERIT 配置指令
@@ -1358,7 +1437,7 @@ bitbake-dumpsigs
 
 
 
-# 5 变量词汇表
+# 5_变量词汇表
 
 ## DEPENDS
 
@@ -1762,3 +1841,9 @@ PREFERRED_VERSION_linux-yocto = "4.12%"
 - subpath：在使用 Git fetcher 时，将签出限制在树的特定子路径上。
 
 - unpack：如果文件是存档文件，则控制是否解压缩。默认操作是解压文件。
+
+## OVERRIDES
+
+BitBake 使用 [OVERRIDES](#OVERRIDES) 来控制 BitBake 解析配方和配置文件后覆盖哪些变量。
+
+下面是一个根据机器架构使用覆盖列表的简单示例：OVERRIDES = "arm:x86:mips:powerpc" 有关如何使用 [OVERRIDES](#OVERRIDES) 的信息，请参阅 "[条件语法（覆盖）](#3-3_条件语法-覆盖)"部分。
