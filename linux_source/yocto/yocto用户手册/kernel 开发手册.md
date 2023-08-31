@@ -586,19 +586,189 @@ $ bitbake linux-yocto -c menuconfig
 
 一旦 menuconfig 启动，其标准界面可让你以交互方式检查和配置所有内核配置参数。完成更改后，只需退出工具并保存更改，即可创建更新版的 .config 配置文件。
 
-
-
 备注：您可以将整个 .config 文件用作 defconfig 文件。有关 defconfig 文件的信息，请参阅 "[更改配置](#2-3-3_更改配置)"、"使用 "In-Tree" defconfig 文件 "和 "[创建 defconfig 文件](#2-6-2_创建-defconfig-文件)" 章节。
 
-请看一个为 linux-yocto-4.12 内核配置 "CONFIG_SMP "设置的例子：
+请看一个为 linux-yocto-4.12 内核配置 "CONFIG_SMP" 设置的例子：
 
 备注：OpenEmbedded 编译系统通过元数据（例如 PREFERRED_VERSION_linux-yocto ?= "4.12%"）将此内核识别为 linux-yocto。
 
+menuconfig 启动后，使用界面导航选择，找到感兴趣的配置设置。在本例中，通过清除 "Symmetric Multi-Processing Support（对称多处理支持）" 选项，取消选择 "CONFIG_SMP"。在界面上，您可以在 "处理器类型和功能 "下找到该选项。要取消选择 "CONFIG_SMP"，请使用箭头键高亮显示 "Symmetric Multi-Processing Support（对称多处理支持）"，然后输入 "N "清除星号。完成后退出并保存更改。
+
+保存选择会更新 .config 配置文件。这是 OpenEmbedded 构建系统在构建过程中用于配置内核的文件。你可以在 tmp/work/ 的[构建目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#build-directory)中找到并检查该文件。实际的 .config 文件位于构建特定内核的区域。例如，如果你正在构建一个基于 linux-yocto-4.12 内核的 Linux Yocto 内核，并且正在构建一个针对 x86 架构的 QEMU 镜像，.config 文件就会是这样：
+
+```bash
+poky/build/tmp/work/qemux86-poky-linux/linux-yocto/4.12.12+gitAUTOINC+eda4d18...
+...967-r0/linux-qemux86-standard-build/.config
+```
+
+备注：前面的示例目录被人为分割，实际文件名中的许多字符被省略，以使其更易于阅读。此外，根据你使用的内核不同，确切的路径名也可能不同。
+
+在 .config 文件中，你可以看到内核设置。例如，以下条目显示未设置对称多处理器支持：
+
+```bash
+# CONFIG_SMP is not set
+```
+
+隔离已更改配置的好方法是结合使用 menuconfig 工具和简单的 shell 命令。在使用 menuconfig 更改配置之前，复制现有的 .config 并将其重命名为其他文件，使用 menuconfig 尽可能多地更改并保存，然后将重命名的配置文件与新创建的文件进行比较。你可以将由此产生的差异作为基础，创建配置片段，永久保存在内核层中。
+
+备注：请务必复制 .config 文件，不要将其重命名。编译系统需要一个现有的 .config 文件来工作。
+
 ### 2-6-2_创建-defconfig-文件
+
+在 Yocto 项目中，defconfig 文件通常是一个从构建文件中复制的 .config 文件，或者是从内核树中提取的 defconfig 文件，并将其移入配方空间。你可以使用 defconfig 文件保留一组已知的内核配置，OpenEmbedded 构建系统可以从中提取，创建最终的 .config 文件。
+
+备注：开箱即用的 Yocto 项目从不提供 defconfig 或 .config 文件。OpenEmbedded 编译系统会创建用于配置内核的 .config 文件。
+
+要创建 defconfig，首先要有一个完整的、可运行的 Linux 内核 .config 文件。将该文件复制到你的层的 recipes-kernel/linux 目录中相应的 ${[PN](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#pn)} 目录，并将复制的文件重命名为 "defconfig"（例如 ~/meta-mylayer/recipes-kernel/linux/linux-yocto/defconfig）。然后，在层中的 linux-yocto .bbappend 文件中添加以下几行：
+
+```bash
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://defconfig"
+```
+
+[SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 告诉编译系统如何搜索文件，而 [FILESEXTRAPATHS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filesextrapaths) 则扩展了 [FILESPATH](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filespath) 变量（搜索目录），使其包括为保存配置更改而创建的 ${[PN](#PN)} 目录。
+
+备注：在应用任何后续配置片段之前，构建系统会应用 defconfig 文件中的配置。最终的内核配置是 defconfig 文件中的配置和你提供的任何配置片段的组合。你需要意识到，如果你有任何配置片段，编译系统会在应用现有 defconfig 文件配置的基础上并在其后应用这些配置片段。
+
+有关配置内核的更多信息，请参阅 "[更改配置](#2-3-3_更改配置)" 部分。
 
 ### 2-6-3_创建配置片段
 
+配置片段只是出现在 OpenEmbedded 构建系统可以找到并应用的文件中的内核选项。构建系统会在应用 defconfig 文件中的配置后应用配置片段。因此，最终的内核配置是 defconfig 文件中的配置和你提供的任何配置片段的组合。构建系统会在应用现有 defconfig 文件配置的基础上和之后应用配置片段。
+
+从语法上讲，配置语句与[构建目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#build-directory)中的 .config 文件完全相同。
+
+备注：有关 .config 文件位置的更多信息，请参阅 "[使用 menuconfig](#2-6-1_使用-menuconfig)" 部分的示例。
+
+创建配置片段很简单。一种方法是使用 shell 命令。例如，从 shell 中发出以下命令，即可创建名为 my_smp.cfg 的配置片段文件，从而在内核中启用多处理器支持：
+
+```bash
+$ echo "CONFIG_SMP=y" >> my_smp.cfg
+```
+
+备注：所有配置片段文件都必须使用 .cfg 扩展名，以便 OpenEmbedded 构建系统将其识别为配置片段。
+
+另一种方法是利用两个配置文件之间的差异创建配置片段：一个是之前创建并保存的配置文件，另一个是使用 menuconfig 工具新创建的配置文件。
+
+要使用这种方法创建配置片段，请按照以下步骤操作：
+
+#### 1st：通过内核配置完成构建
+
+至少通过内核配置任务完成一次构建，如下所示：
+
+```bash
+$ bitbake linux-yocto -c kernel_configme -f
+```
+
+此步骤可确保从已知状态创建 .config 文件。在某些情况下，您的构建状态可能会变得未知，因此最好在启动 menuconfig 之前运行此任务。
+
+#### 2nd：启动 menuconfig
+
+运行 menuconfig 命令：
+
+```bash
+$ bitbake linux-yocto -c menuconfig
+```
+
+#### 3rd：创建配置片段
+
+运行 diffconfig 命令准备配置片段。生成的 fragment.cfg 文件将放在 ${WORKDIR} 目录中：
+
+```bash
+$ bitbake linux-yocto -c diffconfig
+```
+
+diffconfig 命令创建的文件是 Linux 内核 CONFIG_ 分配的列表。有关如何将输出结果用作配置片段的更多信息，请参阅 "更改配置 "部分。
+
+备注：您也可以使用此方法为 BSP 创建配置片段。更多信息，请参阅 "BSP 描述 "部分。
+
+配置片段文件放在哪里？您可以按照层中 bblayers.conf 文件的指示，将这些文件放在 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 指向的区域中。OpenEmbedded 编译系统会获取这些配置，并将其添加到内核配置中。例如，假设你在名为 myconfig.cfg 的文件中设置了一组配置选项。如果你将该文件放在一个名为 linux-yocto 的目录中，该目录与内核的附加文件位于同一目录下，然后在内核的附加文件中添加以下语句，这些配置选项就会在内核构建时被提取并应用：
+
+```bash
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://myconfig.cfg"
+```
+
+如前所述，您可以将相关配置组合到多个文件中，并在 SRC_URI 语句中为它们命名。例如，您可以将以太网和图形配置分别归入各自的文件，并在附加文件中使用如下 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 语句添加这些配置：
+
+```bash
+SRC_URI += "file://myconfig.cfg \
+            file://eth.cfg \
+            file://gfx.cfg"
+```
+
 ### 2-6-4_验证配置
+
+您可以使用 do_kernel_configcheck 任务进行配置验证：
+
+```bash
+$ bitbake linux-yocto -c kernel_configcheck -f
+```
+
+当所请求的配置未出现在最终 .config 文件中，或在硬件配置片段中覆盖策略配置时，运行此任务会产生警告。
+
+要运行此任务，必须有一个现有的 .config 文件。有关如何创建配置文件的信息，请参阅 "使用 menuconfig "部分。
+
+以下是 do_kernel_configcheck 任务的输出示例：
+
+```bash
+Loading cache: 100% |########################################################| Time: 0:00:00
+Loaded 1275 entries from dependency cache.
+NOTE: Resolving any missing task queue dependencies
+
+Build Configuration:
+    .
+    .
+    .
+
+NOTE: Executing SetScene Tasks
+NOTE: Executing RunQueue Tasks
+WARNING: linux-yocto-4.12.12+gitAUTOINC+eda4d18ce4_16de014967-r0 do_kernel_configcheck:
+    [kernel config]: specified values did not make it into the kernel's final configuration:
+
+---------- CONFIG_X86_TSC -----------------
+Config: CONFIG_X86_TSC
+From: /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/bsp/common-pc/common-pc-cpu.cfg
+Requested value:  CONFIG_X86_TSC=y
+Actual value:
+
+
+---------- CONFIG_X86_BIGSMP -----------------
+Config: CONFIG_X86_BIGSMP
+From: /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/cfg/smp.cfg
+      /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/defconfig
+Requested value:  # CONFIG_X86_BIGSMP is not set
+Actual value:
+
+
+---------- CONFIG_NR_CPUS -----------------
+Config: CONFIG_NR_CPUS
+From: /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/cfg/smp.cfg
+      /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/bsp/common-pc/common-pc.cfg
+      /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/defconfig
+Requested value:  CONFIG_NR_CPUS=8
+Actual value:     CONFIG_NR_CPUS=1
+
+
+---------- CONFIG_SCHED_SMT -----------------
+Config: CONFIG_SCHED_SMT
+From: /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/cfg/smp.cfg
+      /home/scottrif/poky/build/tmp/work-shared/qemux86/kernel-source/.kernel-meta/configs/standard/defconfig
+Requested value:  CONFIG_SCHED_SMT=y
+Actual value:
+
+
+
+NOTE: Tasks Summary: Attempted 288 tasks of which 285 didn't need to be rerun and all succeeded.
+
+Summary: There were 3 WARNING messages shown.
+```
+
+备注：前面的输出示例人为地加了换行符，使其更易于阅读。
+
+输出结果会描述你可能遇到的各种问题，以及在哪里可以找到违规的配置项。你可以利用日志中的信息调整配置文件，然后重复 do_kernel_configme 和 do_kernel_configcheck 任务，直到它们不再产生警告。
+
+有关如何使用 menuconfig 工具的更多信息，请参阅使用 menuconfig 部分。
 
 ### 2-6-5_微调内核配置文件
 
