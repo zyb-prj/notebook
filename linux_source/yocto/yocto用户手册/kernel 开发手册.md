@@ -565,10 +565,34 @@ FILESEXTRAPATHS 和 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linu
 - 由于您使用 BitBake 启动 menuconfig，因此必须确保通过运行 Build 目录中的 oe-init-build-env 脚本来设置环境。
 
 
-- 您必须确定源代码目录中构建配置的状态。
+- 您必须确定[源代码目录](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#source-directory)中构建配置的状态。
 
 
 - 您的构建主机必须安装以下两个软件包：
+
+    ```bash
+    libncurses5-dev
+    libtinfo-de
+    ```
+
+以下命令将初始化 BitBake 环境、运行 [do_kernel_configme](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#6-4-6_do_kernel_menuconfig) 任务并启动 menuconfig。这些命令假定源代码目录的顶级文件夹是 poky：
+
+```bash
+$ cd poky
+$ source oe-init-build-env
+$ bitbake linux-yocto -c kernel_configme -f
+$ bitbake linux-yocto -c menuconfig
+```
+
+一旦 menuconfig 启动，其标准界面可让你以交互方式检查和配置所有内核配置参数。完成更改后，只需退出工具并保存更改，即可创建更新版的 .config 配置文件。
+
+
+
+备注：您可以将整个 .config 文件用作 defconfig 文件。有关 defconfig 文件的信息，请参阅 "[更改配置](#2-3-3_更改配置)"、"使用 "In-Tree" defconfig 文件 "和 "[创建 defconfig 文件](#2-6-2_创建-defconfig-文件)" 章节。
+
+请看一个为 linux-yocto-4.12 内核配置 "CONFIG_SMP "设置的例子：
+
+备注：OpenEmbedded 编译系统通过元数据（例如 PREFERRED_VERSION_linux-yocto ?= "4.12%"）将此内核识别为 linux-yocto。
 
 ### 2-6-2_创建-defconfig-文件
 
