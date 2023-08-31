@@ -766,9 +766,9 @@ Summary: There were 3 WARNING messages shown.
 
 备注：前面的输出示例人为地加了换行符，使其更易于阅读。
 
-输出结果会描述你可能遇到的各种问题，以及在哪里可以找到违规的配置项。你可以利用日志中的信息调整配置文件，然后重复 do_kernel_configme 和 do_kernel_configcheck 任务，直到它们不再产生警告。
+输出结果会描述你可能遇到的各种问题，以及在哪里可以找到违规的配置项。你可以利用日志中的信息调整配置文件，然后重复 [do_kernel_configme](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#6-4-5_do_kernel_configme) 和 [do_kernel_configcheck](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#6-4-4_do_kernel_configcheck) 任务，直到它们不再产生警告。
 
-有关如何使用 menuconfig 工具的更多信息，请参阅使用 menuconfig 部分。
+有关如何使用 menuconfig 工具的更多信息，请参阅[使用 menuconfig](#2-6-1_使用-menuconfig) 部分。
 
 ### 2-6-5_微调内核配置文件
 
@@ -777,6 +777,38 @@ Summary: There were 3 WARNING messages shown.
 ## 2-8_处理脏内核版本字符串
 
 ## 2-9_使用自己的源代码
+
+如果你无法使用现有的 linux-yocto 配方所支持的 Linux 内核版本，你仍然可以通过使用自己的源代码来使用 Yocto 项目的 Linux 内核工具。当你使用自己的源代码时，你将无法利用现有的内核元数据和 linux-yocto 源代码的稳定工作。不过，你可以用与 linux-yocto 源相同的格式管理自己的元数据。保持格式兼容有利于在未来相互支持的内核版本上与 linux-yocto 趋同。
+
+为了帮助你使用自己的源代码，Yocto 项目提供了一个 linux-yocto 自定义配方，它使用 kernel.org 源代码和 Yocto 项目 Linux 内核工具来管理内核元数据。你可以在 poky Git 仓库中找到这个配方：[meta-skeleton/recipes-kernel/linux/linux-yocto-custom.bb](https://git.yoctoproject.org/poky/tree/meta-skeleton/recipes-kernel/linux/linux-yocto-custom.bb)。
+
+以下是一些基本步骤，您可以用来处理自己的资料来源：
+
+### 1st 创建内核配方副本
+
+复制 linux-yocto-custom.bb 配方到你的层，并给它起一个有意义的名字。该名称应包括你正在使用的 Yocto Linux 内核版本（例如 linux-yocto-myproject_4.12.bb，其中 "4.12 "是你将使用的 Linux 内核的基本版本）。
+
+### 2nd 创建补丁目录
+
+在层内的同一目录下，创建一个匹配的目录来存储补丁和配置文件（如 linux-yocto-myproject）。
+
+### 3rd 确保您拥有配置
+
+确保你的层中有 defconfig 文件或配置片段文件。使用 linux-yocto-custom.bb 配方时，必须指定配置。如果没有 defconfig 文件，可以运行以下命令：
+
+```bash
+$ make defconfig
+```
+
+运行命令后，将生成的 .config 文件复制到层中的文件目录下，命名为 "defconfig"，然后将其添加到配方中的 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 变量中。
+
+运行 make defconfig 命令会生成内核定义的架构默认配置。但是，并不能保证该配置对您的使用情况有效，甚至不能保证您的板子能够启动。对于非 x86 架构来说尤其如此。
+
+要使用非 x86 defconfig 文件，您需要更具体地查找与您的板卡相匹配的文件（例如，对于 arm，您可以在 arch/arm/configs 中查找，然后使用最适合您的板卡的文件）。
+
+### 4th 编辑食谱
+
+根据项目情况在配方中编辑以下变量：
 
 ## 2-10_使用树外模块
 
