@@ -248,7 +248,36 @@ SRC_URI += "file://defconfig"
 
 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#src_uri) 告诉编译系统如何搜索文件，而 [FILESEXTRAPATHS](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filesextrapaths) 则扩展了 [FILESPATH](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filespath) 变量（搜索目录），使其包括为保存配置更改而创建的 ${[PN](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#pn)} 目录。
 
-也可以使用 [do_savedefconfig](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#6-4-6_do_kernel_menuconfig) 任务生成的普通 defconfig 文件，而不是完整的 .config 文件。这只会指定非默认配置值。你还需要在层中的 linux-yocto .bbappend 文件中设置 KCONFIG_MODE：
+也可以使用 [do_savedefconfig](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#6-4-6_do_kernel_menuconfig) 任务生成的普通 defconfig 文件，而不是完整的 .config 文件。这只会指定非默认配置值。你还需要在层中的 linux-yocto .bbappend 文件中设置 [KCONFIG_MODE](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#kconfig_mode)：
+
+```bash
+KCONFIG_MODE = "alldefconfig"
+```
+
+备注：在应用任何后续配置片段之前，构建系统会应用 defconfig 文件中的配置。最终的内核配置是 defconfig 文件中的配置和你提供的任何配置片段的组合。你需要意识到，如果你有任何配置片段，编译系统会在应用现有 defconfig 文件配置的基础上并在其后应用这些配置片段。
+
+一般来说，首选方法是确定要进行的增量更改，并将其添加为配置片段。例如，如果要添加对基本串行控制台的支持，可在 ${[PN](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#pn)} 目录下创建一个名为 8250.cfg 的文件，内容如下（无缩进）：
+
+```bash
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_PCI=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_RUNTIME_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+```
+
+接下来，在 .bbappend 文件中加入该配置片段并扩展 [FILESPATH](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filespath) 变量：
+
+```bash
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://8250.cfg"
+```
+
+下次运行 BitBake 以构建 Linux 内核时，BitBake 会检测到配方中的更改，并在构建内核前获取和应用新配置。
+
+有关如何配置内核的详细示例，请参阅 "[配置内核](#2-6_配置内核)" 部分。
 
 ### 2-3-4_使用-defconfig-文件
 
@@ -525,9 +554,21 @@ FILESEXTRAPATHS 和 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linu
 
 本节将介绍如何使用 menuconfig、创建和使用配置片段，以及如何交互式修改 .config 文件以创建最精简的内核配置文件。
 
-有关内核配置的更多信息，请参阅 "更改配置" 部分。
+有关内核配置的更多信息，请参阅 "[更改配置](#2-3-3_更改配置)" 部分。
 
 ### 2-6-1_使用-menuconfig
+
+定义内核配置的最简单方法是通过 menuconfig 工具进行设置。该工具提供了一种设置内核配置的交互式方法。有关 menuconfig 的一般信息，请参阅 https://en.wikipedia.org/wiki/Menuconfig。
+
+要在 Yocto Project 开发环境中使用 menuconfig 工具，必须执行以下操作：
+
+- 由于您使用 BitBake 启动 menuconfig，因此必须确保通过运行 Build 目录中的 oe-init-build-env 脚本来设置环境。
+
+
+- 您必须确定源代码目录中构建配置的状态。
+
+
+- 您的构建主机必须安装以下两个软件包：
 
 ### 2-6-2_创建-defconfig-文件
 
