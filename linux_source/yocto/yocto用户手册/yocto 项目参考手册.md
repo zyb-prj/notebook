@@ -52,6 +52,20 @@ Poky 并非产品级发行版。相反，它是定制的一个良好起点。
 
 # 6_Tasks
 
+### 6-4-4_do_kernel_configcheck
+
+验证 [do_kernel_menuconfig](#6-4-6_do_kernel_menuconfig) 任务生成的配置。当请求的配置未出现在最终 .config 文件中，或在硬件配置片段中覆盖策略配置时，[do_kernel_configcheck](#6-4-4_do_kernel_configcheck) 任务会发出警告。您可以使用以下命令显式运行该任务并查看输出结果：
+
+```bash
+$ bitbake linux-yocto -c kernel_configcheck -f
+```
+
+更多信息，请参阅《Yocto 项目 Linux 内核开发手册》中的 "验证配置" 部分。
+
+### 6-4-5_do_kernel_configme
+
+内核被 do_patch 任务打上补丁后，[do_kernel_configme](#6-4-5_do_kernel_configme) 任务会将所有内核配置片段组装并合并成一个合并配置，然后将其传递到内核配置阶段。这也是应用用户指定的 defconfigs（如果存在）和 --allnoconfig 等配置模式的时间。
+
 ### 6-4-6_do_kernel_menuconfig
 
 由用户调用，用于操作用于构建 linux-yocto 配方的 .config 文件。该任务会启动 Linux 内核配置工具，然后你可以用它来修改内核配置。
@@ -264,7 +278,9 @@ PREFERRED_VERSION_foo = "git"
 FOO:an-override = "overridden"
 ```
 
-有关覆盖机制的更多信息，请参阅《BitBake 用户手册》中的 "条件语法（覆盖" 部分。
+有关覆盖机制的更多信息，请参阅《BitBake 用户手册》中的 "[条件语法（覆盖）](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/bitbake%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C.md#3-3_%E6%9D%A1%E4%BB%B6%E8%AF%AD%E6%B3%95-%E8%A6%86%E7%9B%96)" 部分。
+
+ [OVERRIDES](#OVERRIDES)的默认值包括 [CLASSOVERRIDE](#CLASSOVERRIDE)、[MACHINEOVERRIDES](#MACHINEOVERRIDES) 和 [DISTROOVERRIDES](#DISTROOVERRIDES) 变量的值。另一个重要的默认覆盖值是 pn-${PN}。该覆盖允许在配置（.conf）文件中为单个配方设置变量。下面是一个例子：
 
 ## P
 
@@ -293,3 +309,56 @@ ${PN}-${PV}
 ## PKGV
 
 配方构建的软件包的版本。默认情况下，[PKGV](#PKGV) 设置为 [PV](#PV)。
+
+## CLASSOVERRIDE
+
+一个内部变量，用于指定当前应用的特殊类覆盖（如 "class-target"、"class-native "等）。使用该变量的类（如 native、nativesdk 等）会将该变量设置为适当的值。
+
+备注：[CLASSOVERRIDE](#CLASSOVERRIDE) 的默认 "class-target" 值来自 bitbake.conf 文件。
+
+例如，以下重载允许您安装额外的文件，但仅限于为目标构建时：
+
+```python
+do_install:append:class-target() {
+    install my-extra-file ${D}${sysconfdir}
+}
+```
+
+下面是一个例子，在为构建主机构建时，FOO 被设置为 "本地"，而在不为构建主机构建时，FOO 被设置为 "其他"：
+
+```bash
+FOO:class-native = "native"
+FOO = "other"
+```
+
+[CLASSOVERRIDE](#CLASSOVERRIDE) 背后的机制很简单，即它包含在 [OVERRIDES](#OVERRIDES) 的默认值中。
+
+## DISTROOVERRIDES
+
+以冒号分隔的当前发行版特有的重写列表。默认情况下，该列表包括 [DISTRO](#DISTRO) 的值。
+
+你可以扩展 [DISTROOVERRIDES](#DISTROOVERRIDES)，添加适用于发行版的其他覆盖。
+
+[DISTROOVERRIDES](#DISTROOVERRIDES) 背后的机制很简单，它包含在 [OVERRIDES](#OVERRIDES) 的默认值中。
+
+## DISTRO
+
+发行版的简称。有关发行版长名称的信息，请参阅 [DISTRO_NAME](#DISTRO_NAME) 变量。
+
+[DISTRO](#DISTRO) 变量与发行版配置文件相对应，该文件的根名称与变量参数相同，扩展名为 .conf。例如，Poky 发行版的发行版配置文件名为 poky.conf，位于源代码目录的 meta-poky/conf/distro 目录中。
+
+## DISTRO_NAME
+
+发行版的长名称。有关发行版短名称的信息，请参阅 [DISTRO](#DISTRO) 变量。
+
+[DISTRO_NAME](#DISTRO_NAME) 变量与发行版配置文件相对应，该文件的根文件名与变量参数相同，扩展名为 .conf。例如，Poky 发行版的发行版配置文件名为 poky.conf，位于源代码目录的 meta-poky/conf/distro 目录中。
+
+在 poky.conf 文件中，[DISTRO_NAME](#DISTRO_NAME) 变量的设置如下：
+
+```bash
+DISTRO_NAME = "Poky (Yocto Project Reference Distro)"
+```
+
+分发配置文件位于包含分发配置的元数据中的 conf/distro 目录中。
+
+备注：如果 [DISTRO_NAME](#DISTRO_NAME) 变量为空，则会使用一组默认配置，这些配置也在源目录中的 meta/conf/distro/defaultsetup.conf 中指定。
