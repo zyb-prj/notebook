@@ -1,9 +1,5 @@
 # 2 Yocto 项目术语
 
-## Build Directory
-
-该术语指 OpenEmbedded 构建系统用于构建的区域。该区域在源代码目录（即 oe-init-build-env）中的设置环境脚本时创建。TOPDIR 变量指向[构建目录](#Build Directory)。
-
 ## Poky
 
 Poky 的发音是 Pock-ee，是一种参考嵌入式发行版和参考测试配置。Poky 提供以下功能：
@@ -19,6 +15,30 @@ Poky 的发音是 Pock-ee，是一种参考嵌入式发行版和参考测试配�
 Poky 并非产品级发行版。相反，它是定制的一个良好起点。
 
 备注：Poky 最初是 OpenedHand 开发的一个开源项目。OpenedHand 在现有 OpenEmbedded 构建系统的基础上开发了 Poky，目的是为嵌入式 Linux 创建一个商业上可支持的构建系统。英特尔公司收购 OpenedHand 后，poky 项目成为 Yocto 项目构建系统的基础。
+
+## Build Directory
+
+该术语指 OpenEmbedded 构建系统用于构建的区域。该区域在源代码目录（即 oe-init-build-env）中的设置环境脚本时创建。TOPDIR 变量指向[构建目录](#Build Directory)。
+
+## Source Directory
+
+该术语指的是在创建 poky Git 仓库 git://git.yoctoproject.org/poky 的本地副本或扩展已发布的 poky 压缩包时创建的目录结构。
+
+备注：创建 poky Git 仓库的本地副本是设置源代码目录的推荐方法。
+
+有时，你可能会听到 "poky directory" 这个词来指代这种目录结构。
+
+备注：OpenEmbedded 编译系统不支持包含空格的文件或目录名称。请确保您使用的源代码目录不包含此类名称。
+
+源码目录包含 BitBake、文档、元数据和其他支持 Yocto 项目的文件。因此，你必须在开发系统中安装源码目录，才能使用 Yocto 项目进行开发。
+
+创建 Git 仓库的本地副本时，您可以随意为仓库命名。在大部分文档中，"poky" 都被用作 poky Git 仓库本地副本的顶级文件夹名称。因此，举例来说，克隆 poky Git 仓库后，本地 Git 仓库的顶层文件夹也命名为 "poky"。
+
+虽然不建议使用压缩包解压缩来建立源代码目录，但如果使用了，源代码目录的顶级目录名将来自于 Yocto 项目发布的压缩包。例如，从 https://downloads.yoctoproject.org/releases/yocto/yocto-4.2.999/ 下载并解压 poky 压缩包后，源码目录的根目录就会命名为 poky。
+
+了解解压已发布的压缩包所创建的源代码目录与克隆 git://git.yoctoproject.org/poky 所创建的源代码目录之间的区别非常重要。当你解压一个 tar 包时，你就拥有了一个基于发布时间的精确文件拷贝--一个固定的发布点。你对源代码目录中的本地文件所做的任何改动都是在发布时间之上的，并且只能保留在本地。另一方面，当你克隆 poky Git 仓库时，你就拥有了一个活动的开发仓库，可以访问上游仓库的分支和标签。在这种情况下，你对本地源代码目录所做的任何本地更改，都可以在以后应用到上游 poky Git 仓库的活动开发分支中。
+
+有关 Git 仓库、分支和标记相关概念的更多信息，请参阅《Yocto 项目概念手册》中的 "[仓库、标记和分支](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E6%A6%82%E5%BF%B5%E6%89%8B%E5%86%8C.md#351-%E4%BB%93%E5%BA%93%E6%A0%87%E7%AD%BE%E5%92%8C%E5%88%86%E6%94%AF)" 部分。
 
 # 5_Classes
 

@@ -268,7 +268,16 @@ CONFIG_SERIAL_CORE=y
 CONFIG_SERIAL_CORE_CONSOLE=y
 ```
 
+接下来，在 .bbappend 文件中加入该配置片段并扩展 [FILESPATH](https://github.com/zyb-prj/notebook/blob/main/linux_source/yocto/yocto%E7%94%A8%E6%88%B7%E6%89%8B%E5%86%8C/yocto%20%E9%A1%B9%E7%9B%AE%E5%8F%82%E8%80%83%E6%89%8B%E5%86%8C.md#filespath) 变量：
 
+```bash
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI += "file://8250.cfg"
+```
+
+下次运行 BitBake 以构建 Linux 内核时，BitBake 会检测到配方中的更改，并在构建内核前获取和应用新配置。
+
+有关如何配置内核的详细示例，请参阅 "[配置内核](#2-6_配置内核)" 部分。
 
 ### 2-3-4_使用-defconfig-文件
 
@@ -545,9 +554,21 @@ FILESEXTRAPATHS 和 [SRC_URI](https://github.com/zyb-prj/notebook/blob/main/linu
 
 本节将介绍如何使用 menuconfig、创建和使用配置片段，以及如何交互式修改 .config 文件以创建最精简的内核配置文件。
 
-有关内核配置的更多信息，请参阅 "更改配置" 部分。
+有关内核配置的更多信息，请参阅 "[更改配置](#2-3-3_更改配置)" 部分。
 
 ### 2-6-1_使用-menuconfig
+
+定义内核配置的最简单方法是通过 menuconfig 工具进行设置。该工具提供了一种设置内核配置的交互式方法。有关 menuconfig 的一般信息，请参阅 https://en.wikipedia.org/wiki/Menuconfig。
+
+要在 Yocto Project 开发环境中使用 menuconfig 工具，必须执行以下操作：
+
+- 由于您使用 BitBake 启动 menuconfig，因此必须确保通过运行 Build 目录中的 oe-init-build-env 脚本来设置环境。
+
+
+- 您必须确定源代码目录中构建配置的状态。
+
+
+- 您的构建主机必须安装以下两个软件包：
 
 ### 2-6-2_创建-defconfig-文件
 
