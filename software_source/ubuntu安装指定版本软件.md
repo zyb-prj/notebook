@@ -1,68 +1,10 @@
 # 1 安装指定版本的 gcc
 
-此处以最新的 gcc-12 为例 
+## 1.1 说明
 
-## 1.1 下载地址
+此处特指在 ubuntu18 下折腾的情况。ubuntu18 自带的 gcc 为 7.5 版本，无法支持 c++17，无法满足 vim 插件 YCM 的编译。我们需要对其做升级。要求 gcc 以及 g++ 的版本至少为 8.0。第一种方式为官网下载然后编译、安装、使用，此方法坑太多，不建议使用。直接使用命令行安装更新即可。
 
-- 官网全版本资源下载地址：[官网全版本资源下载地址](http://ftp.gnu.org/gnu/gcc/)
-- 个人维护版本 gcc12：[个人维护版本gcc12下载地址](https://zyb-tools.oss-cn-chengdu.aliyuncs.com/ubuntu-software/gcc-12.1.0.tar.gz?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=3678178426&Signature=%2Be4aVCUxZ3Czfr%2Bzjxoif3G7KwI%3D)
-
-## 1.2 下载&编译&安装
-
-- 1st 下载&解压&进入源码目录
-
-    - 下载 gcc 源码至自定义目录下
-
-        ```bash
-        wget http://ftp.gnu.org/gnu/gcc/gcc-11.2.0/gcc-12.1.0.tar.gz
-        ```
-
-    - 解压 gcc 源码至指定目录
-
-        ```bash
-        tar -C ~/tools/ -zxvf gcc-12.1.0.tar.gz
-        ```
-
-- 2nd 安装必须工具
-
-    ```bash
-    sudo apt-get install bzip2
-    ```
-
-    
-
-- 3rd 执行编译配置
-
-    - 跳转至 gcc 源码根目录
-
-        ```bash
-        cd ~/tools/gcc-12.1.0/
-        ```
-
-    - 在 gcc 源码根目录下创建编译产物目录并跳转至此
-
-        ```bash
-        mkdir build && cd build/
-        ```
-
-    - 在编译产物目录 build 下指定编译配置
-
-        ```bash
-        ../configure -enable-checking=release -enable-languages=c,c++ -disable-multilib
-        ```
-
-        - --prefix=/usr/local 配置安装目录
-        - –enable-languages 表示你要让你的 gcc 支持那些语言
-        - –disable-checking 生成的编译器在编译过程中不做额外检查
-        - 也可以使用*–enable-checking=xxx*来增加一些检查
-
-- 4th 编译（时间很久，在编译产物目录 build 下执行）：`make`
-
-- 5th 安装（在编译产物目录 build 下执行）：`make install`
-
-- 6th 使用`gcc -v`指令验证 gcc 版本，若还是之前的版本则重启系统后再次尝试验证
-
-## 1.3 使用
+## 1.2 安装
 
 - 1st 删除旧版本
 
@@ -70,34 +12,29 @@
     sudo apt-get remove gcc g++
     ```
 
+- 2nd 使用命令行安装，此处你可以使用 Tab 键来补充指定的 gcc 以及 g++ 版本，亲测是 8.4 版本，满足要求。
+
+    ```bash
+    sudo apt install gcc-x
+    ```
+
+    ```
+    sudo apt install gcc+x
+    ```
+
 - 2nd 配置新版本全局可用
 
     - 链接 gcc
 
         ```bash
-        sudo ln -s /usr/local/bin/gcc /usr/bin/gcc
+        sudo ln -s /usr/bin/gcc-8 /usr/bin/gcc
         ```
 
     - 链接 g++
 
         ```bash
-        ln -s /usr/local/bin/g++ /usr/bin/g++
+        sudo ln -s /usr/bin/g++-8 /usr/bin/g++
         ```
-
-- 3rd 更新动态库:TODO   **有误，后续改正**
-
-    ```bash
-    # 查看当前的动态库
-    strings /usr/lib/libstdc++.so.6 | grep CXXABI
-    rm -f /usr/lib/libstdc++.so.6
-    ln -s /usr/local/lib64/libstdc++.so.6.0.29 /usr/lib/libstdc++.so.6
-    
-    # 查看更新后的动态库
-    strings /usr/lib/libstdc++.so.6 | grep CXXABI
-    
-    # 安装后的动态库会位于/usr/local/lib目录下，
-    # 其他版本在该目录下寻找对应的动态库libstdc++.so.6.X.XX
-    ```
 
 # 2 安装指定版本的 cmake
 
@@ -174,47 +111,51 @@
 
 ## 3.2 编译源码
 
-- 1st 确认编译器及其中已经安装了 gcc 以及 make。
+- 1st 确认编译器及其中已经安装了 gcc（>8.0版本） 以及 cmake（>3.15版本）。
 
-- 2nd 解压下载后的源码至自定义目录，本文以 ~/tools 为例。
-
-    ```bash
-    tar -C ~/tools/ -zxvf Python-3.10.0.tgz
-    ```
-
-- 3rd 安装 zlib 相关的包
+- 2nd 解压下载后的源码至自定义目录，本文以 ~/software 为例。
 
     ```bash
-    sudo apt-get install zlib*
+    tar -C ~/software/ -zxvf Python-3.10.0.tgz
     ```
 
-- 4th 进入 python 安装包，修改 Module 路径的 Setup 文件：Modules/Setup.dist （或者 Modules/Setup） 文件
-
-    - 进入 Module 目录 ~/user/tools/Python-3.10.0/Modules
-
-        ```bash
-        cd ~/user/tools/Python-3.10.0/Modules
-        ```
-
-    - Module 目录 ~/user/tools/Python-3.10.0/Modules 下编辑 Setup 文件，使用 vim 或 gedit 操作，找到"zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz" 将其注释去掉保存。
-
-        ```bash
-        sudo gedit Setup
-        ```
-
-- 5th 进入源码根目录 ~/tools/Python-3.10.0 打配置
+- 3rd 安装必备工具
 
     ```bash
-    ./configure --enable-shared --enable-optimiza
+    sudo apt update
+    sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev libbz2-dev wget
     ```
 
-- 6th 在源码根目录 ~/tools/Python-3.10.0 下执行编译
+- 4th 进入源码根目录 ~/software/Python-3.10.0 打配置
 
     ```bash
-    make
+    ./configure xxx
     ```
 
-## 3.3 安装并检验
+    - xxx = "**--enable-shared**" 仅用这个配置即可，因为需要动态库，此正好满足
+    - xxx = "**--enable-optimiza**" 编译完成之后安装完毕是静态库，无法编译 YCM
+
+- 6th 在源码根目录 ~/software/Python-3.10.0 下执行编译
+
+    ```bash
+    make -j${nproc}
+    ```
+
+- 7th 在源码根目录 ~/software/Python-3.10.0 下执行安装指令
+
+    ```bash
+    sudo make install
+    ```
+
+- 8th 在源码根目录 ~/software/Python-3.10.0 下执行更新动态链接库缓存
+
+    ```bash
+    sudo ldconfig
+    ```
+
+    
+
+## 3.3 安装
 
 - 1st 源码跟目录 ~/tools/Python-3.10.0 下执行安装指令安装 python
 
@@ -222,42 +163,22 @@
     sudo make install
     ```
 
-- 2nd 检验安装成功
+## 3.4 链接
 
-    ![检验python安装成功](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/software_source/ubuntu%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6/%E6%A3%80%E9%AA%8Cpython%E5%AE%89%E8%A3%85%E6%88%90%E5%8A%9F.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692695000&Signature=2889i%2FsLsBTjeXND4cjf1erTiZE%3D)
+使用命令行安装的文件其可执行链接位于 /usr/bin/ 目录下，包括日常执行的所有命令。但本地编译并安装的 python3.10，其可执行文件位于 /usr/local/bin 目录下。ubuntu18 折腾起来贼恶心，使用`sudo apt-get install python3`得到的 python3 实际上为 python3.6，千万不要把这个 python3 的链接给删了，否则会影响到整个 ubuntu18 的方方面面，比如你按 ctrl+alt+t 唤不醒终端。
 
-## 3.4 创建软连接指向（可选）
-
-- 1st 删除原有软连接
+- 1st 获取 python3 的安装路径
 
     ```bash
-    sudo rm /usr/bin/python
+    which python3.10
+    	==>/usr/local/bin/python3.10				// 安装路径打印 
     ```
 
-- 2nd 获取 python3 的安装路径
+- 2nd 建立新链接至 /usr/local/bin 目录
 
     ```bash
-    which python3
-    	==>/usr/local/bin/python3				// 安装路径打印 
+    sudo ln -s /usr/local/bin/python3.10 /usr/bin/python3.10
     ```
-
-- 3rd 建立新链接
-
-    ```bash
-    sudo ln -s /usr/local/bin/python3 /usr/bin/python
-    ```
-
-- 4th 编辑 .bashrc 文件
-
-    ```bash
-    sudo vim ~/.bashrc
-    	==> alias python='/usr/local/bin/python3'				// 新增内容
-    source ~/.bashrc
-    ```
-
-- 5th ubuntu 默认 python 检验
-
-    ![image-20230307135723536](https://zyb-pic.oss-cn-chengdu.aliyuncs.com/pic/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/01-ubuntu%E5%9F%BA%E6%9C%AC%E8%BD%AF%E4%BB%B6%E9%85%8D%E7%BD%AE/1-1.2-1.2.2-1.2.2.3-1.2.2.3.4-ubuntu%E9%BB%98%E8%AE%A4python%E6%A3%80%E9%AA%8C.png)
 
 ## 3.5 更新 pip 默认指向
 
@@ -274,50 +195,30 @@
     sudo ln -s /usr/local/bin/pip3 /usr/bin/pip
     ```
 
-- 3rd 检验
-
-    ```bash
-    pip
-    ```
-
-    ![检验pip指向成功](https://zyb-note-pic.oss-cn-chengdu.aliyuncs.com/software_source/ubuntu%E5%AE%89%E8%A3%85%E6%8C%87%E5%AE%9A%E7%89%88%E6%9C%AC%E8%BD%AF%E4%BB%B6/%E6%A3%80%E9%AA%8Cpip%E6%8C%87%E5%90%91%E6%88%90%E5%8A%9F.png?OSSAccessKeyId=LTAI5tREkNKGRcMiPdgNQUye&Expires=10000000001692695000&Signature=BklcKlVsgPUp0QuesdO6TXg6i%2BM%3D)
-
 # 4 安装指定版本 vim
 
-## 4.1 官网教程
+## 4.1 说明
 
-[官方安装指南](https://www.vim.org/git.php)
+ubuntu18 下要想配置 vim，那么最好 vim 版本必须在 8.0+ 之后，亲测 8.0 不行。我们直接安装最新款的 vim 即可。
 
-## 4.2 快捷教程
+## 4.2 安装
 
-- 1st 源码下载至 ~/tools
-
-    ```bash
-    git clone https://github.com/vim/vim.git
-    ```
-
-- 2nd 进入源码目录 ~/tools/vim 拉取最新代码
+- 1st 添加一个包含最新Vim版本的软件源
 
     ```bash
-    git pull
+    sudo add-apt-repository ppa:jonathonf/vim
     ```
 
-- 3rd 进入根目录下的 src 目录 ~/tools/vim/src 进行编译
+- 2nd 更新软件包列表
 
-    - 清空之前的编译
+    ```bash
+    sudo apt update
+    ```
 
-        ```bash
-        make distclean
-        ```
+- 3rd 执行安装指令
 
-    - 执行编译指令
+    ```bash
+    sudo apt install vim
+    ```
 
-        ```bash
-        make
-        ```
-
-    - 编译安装
-
-        ```bash
-        sudo make install
-        ```
+    
