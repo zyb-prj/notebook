@@ -123,7 +123,35 @@ Yocto Project OpenEmbedded 编译系统会生成标准格式的软件包（如 R
 ## Chapter2_贡献指南
 
 ## Chapter3_引导手册
+### 2_Yocto 项目术语
 
+#### BitBake
+
+OpenEmbedded 构建系统用于构建映像的任务执行器和调度程序。有关 BitBake 的更多信息，请参阅[《BitBake 用户手册》](#模块2_Bitbake 使用手册)。
+
+#### OpenEmbedded Build System
+
+Yocto 项目专用的构建系统。OpenEmbedded 联编系统基于另一个名为 "Poky" 的项目，该项目使用 BitBake 作为任务执行器。在整个 Yocto 项目文档集中，OpenEmbedded 联编系统有时被简称为 "联编系统"。如果引用了其他联编系统，如主机或目标联编系统，文档中会明确说明两者的区别。
+
+备注：有关 Poky 的一些历史信息，请参阅 Poky 术语。
+
+#### Poky
+
+Poky 的发音是 Pock-ee，是一种参考嵌入式发行版和参考测试配置。Poky 提供以下功能：
+
+- 用于说明如何定制发行版的基础功能发行版。
+
+
+- 测试 Yocto 项目组件的一种方法（即 Poky 用于验证 Yocto 项目）。
+
+
+- 下载 Yocto 项目的工具。
+
+Poky 并非产品级发行版。相反，它是定制的一个良好起点。
+
+备注：Poky 最初是 OpenedHand 开发的一个开源项目。OpenedHand 在现有 OpenEmbedded 构建系统的基础上开发了 Poky，目的是为嵌入式 Linux 创建一个商业上可支持的构建系统。英特尔公司收购 OpenedHand 后，poky 项目成为 Yocto 项目构建系统的基础。
+
+### 3_Yocto 项目发布和稳定版发布流程
 ### 2_Yocto 项目术语
 
 #### BitBake
